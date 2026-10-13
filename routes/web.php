@@ -16,7 +16,7 @@ use App\Http\Controllers\DashboardDokterController;
 // ... (kode route lainnya biarkan seperti biasa)
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
-Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
+Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
     Route::get('/dashboard', [DashboardDokterController::class, 'index'])->name('dashboard');
     
     // Route Modul Rekam Medis
