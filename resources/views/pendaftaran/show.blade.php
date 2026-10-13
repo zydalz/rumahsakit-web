@@ -22,6 +22,20 @@
 
         <div class="grid gap-5 px-6 py-6 sm:grid-cols-2 sm:px-8">
             <div>
+                <p class="text-sm text-slate-500">Nama Pasien</p>
+                <p class="mt-1 font-semibold text-slate-800">
+                    {{ $pendaftaran->pasien->nama ?? $pendaftaran->pasien->user->name ?? '-' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm text-slate-500">Nomor Rekam Medis</p>
+                <p class="mt-1 font-semibold text-slate-800">
+                    {{ $pendaftaran->pasien->nomor_rm ?? '-' }}
+                </p>
+            </div>
+
+            <div>
                 <p class="text-sm text-slate-500">Tanggal Kunjungan</p>
                 <p class="mt-1 font-semibold text-slate-800">
                     {{ $pendaftaran->tanggal_kunjungan->format('d-m-Y') }}
@@ -36,16 +50,36 @@
             </div>
 
             <div>
-                <p class="text-sm text-slate-500">Poli</p>
+                <p class="text-sm text-slate-500">Poli Tujuan</p>
                 <p class="mt-1 font-semibold text-slate-800">
                     {{ $pendaftaran->poli->nama_poli ?? '-' }}
                 </p>
             </div>
 
             <div>
+                <p class="text-sm text-slate-500">Dokter</p>
+                <p class="mt-1 font-semibold text-slate-800">
+                    {{ $pendaftaran->jadwalDokter->dokter->user->name ?? '-' }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-sm text-slate-500">Jam Praktik</p>
+                <p class="mt-1 font-semibold text-slate-800">
+                    @if ($pendaftaran->jadwalDokter)
+                        {{ \Carbon\Carbon::parse($pendaftaran->jadwalDokter->jam_mulai)->format('H:i') }}
+                        -
+                        {{ \Carbon\Carbon::parse($pendaftaran->jadwalDokter->jam_selesai)->format('H:i') }}
+                    @else
+                        -
+                    @endif
+                </p>
+            </div>
+
+            <div>
                 <p class="text-sm text-slate-500">Jenis Penjamin</p>
                 <p class="mt-1 font-semibold text-slate-800">
-                    {{ ucfirst($pendaftaran->jenis_penjamin) }}
+                    {{ $pendaftaran->jenis_penjamin }}
                 </p>
             </div>
 
@@ -63,7 +97,7 @@
                 </p>
             </div>
 
-            <div class="sm:col-span-2">
+            <div>
                 <p class="text-sm text-slate-500">Status Pendaftaran</p>
                 <p class="mt-1 font-semibold text-slate-800">
                     {{ ucfirst($pendaftaran->status) }}

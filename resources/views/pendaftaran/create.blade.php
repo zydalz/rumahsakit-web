@@ -16,90 +16,212 @@
             Pilih poli dan jadwal dokter untuk melakukan pendaftaran kunjungan.
         </p>
 
-        <div class="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
-            <div class="flex items-start gap-3">
-                <div class="mt-0.5 text-blue-700">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         width="22" height="22" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round"
-                         stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 16v-4"/>
-                        <path d="M12 8h.01"/>
-                    </svg>
-                </div>
-
-                <div>
-                    <h2 class="font-semibold text-blue-900">
-                        Formulir belum tersedia
-                    </h2>
-                    <p class="mt-1 text-sm leading-6 text-blue-800">
-                        Pemilihan poli dan jadwal dokter akan tersedia
-                        setelah integrasi data poli, dokter, dan jadwal praktik
-                        selesai.
-                    </p>
-                </div>
+        @if ($errors->any())
+            <div class="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                <p class="font-semibold">Periksa kembali data pendaftaran.</p>
+                <ul class="mt-2 list-inside list-disc space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-        </div>
+        @endif
 
-        <div class="mt-8">
+        <form action="{{ route('pasien.pendaftaran.store') }}"
+              method="POST"
+              class="mt-6 space-y-6">
+            @csrf
+
+            <div>
+                <label for="poli_id" class="mb-2 block text-sm font-medium text-slate-700">
+                    Poli tujuan <span class="text-red-500">*</span>
+                </label>
+
+                <select id="poli_id" name="poli_id" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+                    <option value="">Pilih poli</option>
+                    @foreach ($polis as $poli)
+                        <option value="{{ $poli->id }}"
+                            @selected(old('poli_id') == $poli->id)>
+                            {{ $poli->nama_poli }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @if ($polis->isEmpty())
+                    <p class="mt-2 text-sm text-amber-700">
+                        Belum ada poli aktif. Silakan hubungi administrator rumah sakit.
+                    </p>
+                @endif
+            </div>
+
+            <div>
+                <label for="jadwal_dokter_id" class="mb-2 block text-sm font-medium text-slate-700">
+                    Jadwal dokter <span class="text-red-500">*</span>
+                </label>
+
+                <select id="jadwal_dokter_id" name="jadwal_dokter_id" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+                    <option value="">Pilih jadwal dokter</option>
+                    @foreach ($jadwals as $jadwal)
+                        <option value="{{ $jadwal->id }}"
+                            data-poli="{{ $jadwal->dokter->poli_id }}"
+                            @selected(old('jadwal_dokter_id') == $jadwal->id)>
+                            {{ $jadwal->dokter->user->name ?? 'Dokter' }}
+                            · {{ $jadwal->dokter->poli->nama_poli ?? 'Poli' }}
+                            · {{ $jadwal->hari }}
+                            ({{ substr($jadwal->jam_mulai, 0, 5) }}–{{ substr($jadwal->jam_selesai, 0, 5) }})
+                        </option>
+                    @endforeach
+                </select>
+
+                @if ($jadwals->isEmpty())
+                    <p class="mt-2 text-sm text-amber-700">
+                        Belum ada jadwal dokter aktif. Silakan hubungi administrator rumah sakit.
+                    </p>
+                @endif
+            </div>
+
+            <div>
+                <label for="tanggal_kunjungan" class="mb-2 block text-sm font-medium text-slate-700">
+                    Tanggal kunjungan <span class="text-red-500">*</span>
+                </label>
+
+                <input type="date" id="tanggal_kunjungan"
+                       name="tanggal_kunjungan"
+                       min="{{ now()->toDateString() }}"
+                       value="{{ old('tanggal_kunjungan') }}"
+                       required
+                       class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+
+            <div>
+                <label for="jenis_penjamin" class="mb-2 block text-sm font-medium text-slate-700">
+                    Jenis penjamin <span class="text-red-500">*</span>
+                </label>
+
+                <select id="jenis_penjamin" name="jenis_penjamin" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+                    <option value="">Pilih jenis penjamin</option>
+                    <option value="Umum" @selected(old('jenis_penjamin') === 'Umum')>Umum</option>
+                    <option value="BPJS" @selected(old('jenis_penjamin') === 'BPJS')>BPJS</option>
+                    <option value="Asuransi" @selected(old('jenis_penjamin') === 'Asuransi')>Asuransi</option>
+                </select>
+            </div>
+
+            <div id="nomor-peserta-wrapper">
+                <label for="nomor_peserta" class="mb-2 block text-sm font-medium text-slate-700">
+                    Nomor peserta
+                </label>
+
+                <input type="text" id="nomor_peserta" name="nomor_peserta"
+                       value="{{ old('nomor_peserta') }}"
+                       maxlength="50"
+                       placeholder="Nomor kartu BPJS atau asuransi"
+                       class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+
+                <p class="mt-1 text-xs text-slate-500">
+                    Wajib diisi untuk penjamin BPJS atau Asuransi.
+                </p>
+            </div>
+
+            <div>
+                <label for="keluhan_awal" class="mb-2 block text-sm font-medium text-slate-700">
+                    Keluhan awal
+                </label>
+
+                <textarea id="keluhan_awal" name="keluhan_awal"
+                          rows="4" maxlength="2000"
+                          placeholder="Ceritakan keluhan yang dirasakan (opsional)"
+                          class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">{{ old('keluhan_awal') }}</textarea>
+            </div>
+
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+                <a href="{{ route('pasien.pendaftaran.index') }}"
+                   class="inline-flex items-center justify-center rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                    Batal
+                </a>
+
+                <button type="submit"
+                        @disabled($polis->isEmpty() || $jadwals->isEmpty())
+                        class="inline-flex items-center justify-center rounded-lg bg-oasis-blue px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+                    Daftar Kunjungan
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-8 border-t border-slate-100 pt-6">
             <h2 class="text-base font-semibold text-slate-800">
                 Tahapan pendaftaran
             </h2>
 
             <ol class="mt-4 space-y-4">
                 <li class="flex gap-3">
-                    <span class="flex h-8 w-8 shrink-0 items-center
-                                 justify-center rounded-full bg-slate-100
-                                 text-sm font-semibold text-slate-600">
-                        1
-                    </span>
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">1</span>
                     <div>
-                        <p class="font-medium text-slate-700">
-                            Pilih poli dan jadwal dokter
-                        </p>
-                        <p class="mt-1 text-sm text-slate-500">
-                            Tentukan tujuan kunjungan dan tanggal praktik
-                            yang tersedia.
-                        </p>
+                        <p class="font-medium text-slate-700">Pilih poli dan jadwal dokter</p>
+                        <p class="mt-1 text-sm text-slate-500">Tentukan tujuan kunjungan dan jadwal praktik yang tersedia.</p>
                     </div>
                 </li>
 
                 <li class="flex gap-3">
-                    <span class="flex h-8 w-8 shrink-0 items-center
-                                 justify-center rounded-full bg-slate-100
-                                 text-sm font-semibold text-slate-600">
-                        2
-                    </span>
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">2</span>
                     <div>
-                        <p class="font-medium text-slate-700">
-                            Lengkapi informasi kunjungan
-                        </p>
-                        <p class="mt-1 text-sm text-slate-500">
-                            Isi jenis penjamin dan keluhan awal jika ada.
-                        </p>
+                        <p class="font-medium text-slate-700">Lengkapi informasi kunjungan</p>
+                        <p class="mt-1 text-sm text-slate-500">Isi jenis penjamin, nomor peserta jika diperlukan, dan keluhan awal.</p>
                     </div>
                 </li>
 
                 <li class="flex gap-3">
-                    <span class="flex h-8 w-8 shrink-0 items-center
-                                 justify-center rounded-full bg-slate-100
-                                 text-sm font-semibold text-slate-600">
-                        3
-                    </span>
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">3</span>
                     <div>
-                        <p class="font-medium text-slate-700">
-                            Dapatkan nomor antrean
-                        </p>
-                        <p class="mt-1 text-sm text-slate-500">
-                            Nomor antrean diberikan setelah pendaftaran
-                            berhasil disimpan.
-                        </p>
+                        <p class="font-medium text-slate-700">Dapatkan nomor antrean</p>
+                        <p class="mt-1 text-sm text-slate-500">Nomor antrean diberikan setelah pendaftaran berhasil disimpan.</p>
                     </div>
                 </li>
             </ol>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const poliSelect = document.getElementById('poli_id');
+    const jadwalSelect = document.getElementById('jadwal_dokter_id');
+    const penjaminSelect = document.getElementById('jenis_penjamin');
+    const nomorPeserta = document.getElementById('nomor_peserta');
+    const nomorPesertaWrapper = document.getElementById('nomor-peserta-wrapper');
+
+    function filterJadwal() {
+        const poliId = poliSelect.value;
+
+        Array.from(jadwalSelect.options).forEach(function (option) {
+            if (!option.value) {
+                option.hidden = false;
+                return;
+            }
+
+            option.hidden = poliId !== '' && option.dataset.poli !== poliId;
+
+            if (option.hidden && option.selected) {
+                jadwalSelect.value = '';
+            }
+        });
+    }
+
+    function updateNomorPeserta() {
+        const wajib = penjaminSelect.value === 'BPJS'
+            || penjaminSelect.value === 'Asuransi';
+
+        nomorPeserta.required = wajib;
+        nomorPesertaWrapper.classList.toggle('hidden', penjaminSelect.value === 'Umum');
+    }
+
+    poliSelect.addEventListener('change', filterJadwal);
+    penjaminSelect.addEventListener('change', updateNomorPeserta);
+
+    filterJadwal();
+    updateNomorPeserta();
+});
+</script>
 @endsection

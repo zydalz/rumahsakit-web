@@ -13,6 +13,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
+use App\Models\Poli;
+use App\Models\JadwalDokter;
+use App\Models\Dokter;
+
 class PendaftaranController extends Controller
 {
     /**
@@ -39,6 +43,7 @@ class PendaftaranController extends Controller
     /**
      * Menampilkan formulir pendaftaran.
      */
+    
     public function create(): View
     {
         $pasien = auth()->user()->pasien;
@@ -47,8 +52,25 @@ class PendaftaranController extends Controller
             abort(403, 'Profil pasien tidak ditemukan.');
         }
 
-        return view('pendaftaran.create');
+        $polis = Poli::where('is_active', true)
+            ->orderBy('nama_poli')
+            ->get();
+
+        $jadwals = JadwalDokter::with(['dokter.user', 'dokter.poli'])
+            ->where('is_active', true)
+            ->whereHas('dokter', function ($query) {
+                $query->where('is_active', true)
+                    ->whereHas('poli', function ($poliQuery) {
+                        $poliQuery->where('is_active', true);
+                    });
+            })
+            ->orderBy('hari')
+            ->orderBy('jam_mulai')
+            ->get();
+
+        return view('pendaftaran.create', compact('polis', 'jadwals'));
     }
+
 
     /**
      * Menyimpan pendaftaran rawat jalan.
@@ -103,7 +125,113 @@ class PendaftaranController extends Controller
                 'Nomor peserta wajib diisi untuk BPJS atau Asuransi.',
         ]);
 
-        // Proses penyimpanan dilanjutkan pada langkah berikutnya.
+        // Proses penyimpanan
+        
+        $tanggal = Carbon::parse($validated['tanggal_kunjungan']);
+
+        $hariIndonesia = [
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+            'Sunday' => 'Minggu',
+        ];
+
+        $hariKunjungan = $hariIndonesia[$tanggal->format('l')];
+
+        try {
+            $pendaftaran = DB::transaction(function () use (
+                $validated,
+                $pasien,
+                $tanggal,
+                $hariKunjungan
+            ) {
+                $jadwal = JadwalDokter::with('dokter')
+                    ->whereKey($validated['jadwal_dokter_id'])
+                    ->where('is_active', true)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (
+                    !$jadwal ||
+                    !$jadwal->dokter ||
+                    !$jadwal->dokter->is_active ||
+                    (int) $jadwal->dokter->poli_id !== (int) $validated['poli_id']
+                ) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'jadwal_dokter_id' => 'Jadwal dokter tidak sesuai dengan poli yang dipilih.',
+                    ]);
+                }
+
+                $poliAktif = Poli::whereKey($validated['poli_id'])
+                    ->where('is_active', true)
+                    ->exists();
+
+                if (!$poliAktif) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'poli_id' => 'Poli yang dipilih sudah tidak aktif.',
+                    ]);
+                }
+
+                if (mb_strtolower($jadwal->hari) !== mb_strtolower($hariKunjungan)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'tanggal_kunjungan' => 'Tanggal yang dipilih tidak sesuai dengan hari praktik dokter.',
+                    ]);
+                }
+
+                $jumlahTerdaftar = \App\Models\Pendaftaran::query()
+                    ->where('jadwal_dokter_id', $jadwal->id)
+                    ->whereDate('tanggal_kunjungan', $tanggal->toDateString())
+                    ->whereIn('status', ['menunggu', 'terverifikasi', 'terdaftar'])
+                    ->count();
+
+                if ($jumlahTerdaftar >= $jadwal->kuota) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'jadwal_dokter_id' => 'Kuota jadwal dokter pada tanggal tersebut sudah penuh.',
+                    ]);
+                }
+
+                $nomorAntrean = \App\Models\Pendaftaran::query()
+                    ->where('poli_id', $validated['poli_id'])
+                    ->whereDate('tanggal_kunjungan', $tanggal->toDateString())
+                    ->lockForUpdate()
+                    ->max('nomor_antrean');
+
+                $nomorAntrean = ($nomorAntrean ?? 0) + 1;
+
+                return \App\Models\Pendaftaran::create([
+                    'kode_pendaftaran' => 'RJ-' . now()->format('Ymd') . '-' . Str::upper(Str::random(8)),
+                    'pasien_id' => $pasien->id,
+                    'poli_id' => $validated['poli_id'],
+                    'jadwal_dokter_id' => $jadwal->id,
+                    'tanggal_kunjungan' => $tanggal->toDateString(),
+                    'nomor_antrean' => $nomorAntrean,
+                    'jenis_penjamin' => $validated['jenis_penjamin'],
+                    'nomor_peserta' => $validated['jenis_penjamin'] === 'Umum'
+                        ? null
+                        : $validated['nomor_peserta'],
+                    'status_verifikasi' => 'menunggu',
+                    'keluhan_awal' => $validated['keluhan_awal'] ?? null,
+                    'status' => 'menunggu',
+                    'created_by' => auth()->id(),
+                ]);
+            }, 3);
+        } catch (\Illuminate\Database\QueryException $e) {
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'pendaftaran' => 'Pendaftaran belum dapat disimpan. Silakan coba kembali.',
+                ]);
+        }
+
+        return redirect()
+            ->route('pasien.pendaftaran.show', $pendaftaran)
+            ->with('success', 'Pendaftaran berhasil dibuat. Nomor antrean Anda: ' . $pendaftaran->nomor_antrean);
+
     }
 
     /**

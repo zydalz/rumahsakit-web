@@ -33,10 +33,11 @@ class PatientRegistrationTest extends TestCase
         $this->assertNotNull($pasien);
         $this->assertSame('Pasien Percobaan', $pasien->nama);
         $this->assertNotEmpty($pasien->nomor_rm);
-        $this->assertTrue($this->isAuthenticated());
+
+        $this->assertTrue($this->isUserAuthenticated());
     }
 
-    private function isAuthenticated(): bool
+    private function isUserAuthenticated(): bool
     {
         return auth()->check();
     }
