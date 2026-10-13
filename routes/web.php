@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PasienController;
+use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\ObatController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,4 +51,26 @@ Route::middleware(['auth', 'active', 'role:admin,farmasi'])
     ->name('farmasi.')
     ->group(function () {
         Route::resource('obat', ObatController::class);
+    });
+
+// Fitur Pendaftaran
+Route::middleware(['auth', 'active', 'role:pasien'])
+    ->prefix('pasien')
+    ->name('pasien.')
+    ->group(function () {
+        Route::get('/pendaftaran', [PendaftaranController::class, 'index'])
+            ->name('pendaftaran.index');
+
+        Route::get('/pendaftaran/create', [PendaftaranController::class, 'create'])
+            ->name('pendaftaran.create');
+
+        Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])
+            ->whereNumber('pendaftaran')
+            ->name('pendaftaran.show');
+        
+        Route::post(
+            '/pendaftaran',
+            [PendaftaranController::class, 'store']
+        )->name('pendaftaran.store');
+
     });
