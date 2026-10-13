@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PasienController;
+use App\Http\Controllers\ObatController;
 use Illuminate\Support\Facades\Route;
 
+// Halaman utama
 Route::view('/', 'home')->name('home');
 
+// Login dan registrasi untuk pengguna yang belum login
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])
         ->name('login');
@@ -21,7 +25,8 @@ Route::middleware('guest')->group(function () {
         ->name('register.store');
 });
 
-Route::middleware('auth')->group(function () {
+// Fitur pengguna yang sudah login dan aktif
+Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -30,20 +35,19 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 });
 
-Route::middleware(['auth', 'active'])->group(function () {
-    // Route dashboard dan logout
-});
-
-// Contoh pembatasan route untuk modul yang akan datang.
-Route::middleware(['auth', 'role:admin'])
+// Fitur khusus admin
+Route::middleware(['auth', 'active', 'role:admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
-        // Route pengelolaan akun staf akan ditambahkan
-        // ketika modul admin sudah disepakati.
+        Route::resource('pasien', PasienController::class)
+            ->except(['destroy']);
     });
 
-    use App\Http\Controllers\ObatController;
-
-Route::middleware(['auth'])->group(function () {
-    Route::resource('obat', ObatController::class);
-});
+// Fitur obat untuk admin dan farmasi
+Route::middleware(['auth', 'active', 'role:admin,farmasi'])
+    ->prefix('farmasi')
+    ->name('farmasi.')
+    ->group(function () {
+        Route::resource('obat', ObatController::class);
+    });
