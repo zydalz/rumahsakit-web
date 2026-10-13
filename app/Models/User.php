@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Models\Dokter;
+
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable
@@ -46,5 +48,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Pasien::class);
     }
+
+    public function dokter(): HasOne
+{
+    return $this->hasOne(Dokter::class, 'user_id');
+}
 
 }

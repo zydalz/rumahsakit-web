@@ -8,7 +8,7 @@
             <h2 class="font-semibold text-xl text-[#173D59] leading-tight">
                 {{ __('Manajemen Master Obat') }}
             </h2>
-            <a href="{{ route('obat.create') }}" class="bg-[#17618B] hover:bg-[#124d6d] text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+            <a href="{{ route('farmasi.obat.create') }}" class="bg-[#17618B] hover:bg-[#124d6d] text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
                 + Tambah Obat Baru
             </a>
         </div>
@@ -23,14 +23,14 @@
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100 p-6">
             
             {{-- Form Pencarian --}}
-            <form method="GET" action="{{ route('obat.index') }}" class="mb-6 flex gap-4">
+            <form method="GET" action="{{ route('farmasi.obat.index') }}" class="mb-6 flex gap-4">
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari berdasarkan kode atau nama obat..." 
                     class="w-full sm:w-1/3 border-gray-300 rounded-lg text-sm focus:border-[#17618B] focus:ring-[#17618B]">
                 <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-medium transition">
                     Cari
                 </button>
                 @if(isset($search))
-                    <a href="{{ route('obat.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center">
+                    <a href="{{ route('farmasi.obat.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center">
                         Reset
                     </a>
                 @endif
@@ -73,8 +73,8 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center space-x-2">
-                                    <a href="{{ route('obat.edit', $obat->id) }}" class="text-[#17618B] hover:underline font-medium">Edit</a>
-                                    <form action="{{ route('obat.destroy', $obat->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus obat ini?');">
+                                    <a href="{{ route('farmasi.obat.edit', $obat->id) }}" class="text-[#17618B] hover:underline font-medium">Edit</a>
+                                    <form action="{{ route('farmasi.obat.destroy', $obat->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus obat ini?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:underline font-medium">Hapus</button>

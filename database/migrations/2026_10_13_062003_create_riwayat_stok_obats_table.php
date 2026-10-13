@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('riwayat_stok_obat', function (Blueprint $table) {
+    Schema::create('riwayat_stok_obats', function (Blueprint $table) {
     $table->id();
     $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
     $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

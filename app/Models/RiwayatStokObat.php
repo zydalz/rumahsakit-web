@@ -9,7 +9,7 @@ class RiwayatStokObat extends Model
 {
     use HasFactory;
 
-    protected $table = 'riwayat_stok_obat';
+    protected $table = 'riwayat_stok_obats';
 
     protected $fillable = [
         'obat_id',
