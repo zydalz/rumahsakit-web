@@ -46,6 +46,13 @@ class Pendaftaran extends Model
         return $this->belongsTo(JadwalDokter::class);
     }
 
+    
+    public function pemeriksaan(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Pemeriksaan::class, 'pendaftaran_id');
+    }
+
+
     public function pembuat(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

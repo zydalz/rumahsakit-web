@@ -6,11 +6,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePemeriksaanRequest extends FormRequest
 {
+    
     public function authorize(): bool
     {
-        // Hanya user dengan role 'dokter' yang diizinkan menginput rekam medis
-        return auth()->check() && auth()->user()->role === 'dokter';
+        $user = $this->user();
+
+        return $user
+            && $user->role === 'dokter'
+            && $user->is_active
+            && $user->dokter
+            && $user->dokter->is_active;
     }
+
 
     public function rules(): array
     {
@@ -38,4 +45,5 @@ class StorePemeriksaanRequest extends FormRequest
             'tinggi_badan.between'    => 'Nilai tinggi badan tidak valid.',
         ];
     }
+    
 }
