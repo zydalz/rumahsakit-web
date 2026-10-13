@@ -2,6 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TagihanController;
+use App\Http\Controllers\PembayaranController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tagihan', TagihanController::class);
+    Route::post('/tagihan/{id}/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
+});
 
 Route::view('/', 'home')->name('home');
 
