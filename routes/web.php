@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\PasienController;
+
 Route::view('/', 'home')->name('home');
 
 Route::middleware('guest')->group(function () {
@@ -34,10 +36,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     // Route dashboard dan logout
 });
 
-// Contoh pembatasan route untuk modul yang akan datang.
-Route::middleware(['auth', 'role:admin'])
+Route::middleware(['auth', 'active', 'role:admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
-        // Route pengelolaan akun staf akan ditambahkan
-        // ketika modul admin sudah disepakati.
+        Route::resource('pasien', PasienController::class)
+            ->except(['destroy']);
     });
