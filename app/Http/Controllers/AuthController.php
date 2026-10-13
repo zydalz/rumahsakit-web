@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
+use App\Models\Pasien;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 class AuthController extends Controller
 {
     public function showLogin()
@@ -42,6 +46,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+    
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -54,13 +59,29 @@ class AuthController extends Controller
             ],
         ]);
 
-        $user = new User();
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->password = Hash::make($validated['password']);
-        $user->role = 'pasien';
-        $user->is_active = true;
-        $user->save();
+        $user = DB::transaction(function () use ($validated) {
+            $user = new User();
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+            $user->password = Hash::make($validated['password']);
+            $user->role = 'pasien';
+            $user->is_active = true;
+            $user->save();
+
+            do {
+                $nomorRm = 'RM' . Str::upper(Str::random(16));
+            } while (
+                Pasien::where('nomor_rm', $nomorRm)->exists()
+            );
+
+            Pasien::create([
+                'user_id' => $user->id,
+                'nama' => $user->name,
+                'nomor_rm' => $nomorRm,
+            ]);
+
+            return $user;
+        });
 
         Auth::login($user);
 
@@ -69,6 +90,7 @@ class AuthController extends Controller
         return redirect()->route('dashboard')
             ->with('success', 'Registrasi berhasil. Selamat datang.');
     }
+
 
     public function logout(Request $request)
     {
