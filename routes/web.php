@@ -41,3 +41,9 @@ Route::middleware(['auth', 'role:admin'])
         // Route pengelolaan akun staf akan ditambahkan
         // ketika modul admin sudah disepakati.
     });
+
+    use App\Http\Controllers\ObatController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('obat', ObatController::class);
+});
