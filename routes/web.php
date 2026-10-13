@@ -8,23 +8,22 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalDokterController;
+
+// Perhatikan namespace tambahan \Dokter di bawah ini:
 use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
 
-// Route untuk Admin (Manajemen Master Data)
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('poli', PoliController::class);
-    Route::resource('dokter', DokterController::class);
-    Route::resource('jadwal', JadwalDokterController::class);
-});
+// ... (kode route lainnya biarkan seperti biasa)
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
     Route::get('/dashboard', [DashboardDokterController::class, 'index'])->name('dashboard');
+    
+    // Route Modul Rekam Medis
     Route::get('/pemeriksaan', [PemeriksaanController::class, 'index'])->name('pemeriksaan.index');
-    Route::get('/pemeriksaan/create/{pendaftaran}', [PemeriksaanController::class, 'create'])->name('pemeriksaan.create');
+    Route::get('/pemeriksaan/create/{pendaftaran_id}', [PemeriksaanController::class, 'create'])->name('pemeriksaan.create');
     Route::post('/pemeriksaan', [PemeriksaanController::class, 'store'])->name('pemeriksaan.store');
-    Route::get('/pemeriksaan/{pemeriksaan}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+    Route::get('/pemeriksaan/{id}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
 });
 
 // Halaman utama

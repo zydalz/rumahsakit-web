@@ -2,53 +2,89 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePemeriksaanRequest;
+use App\Models\Dokter;
 use App\Models\Pemeriksaan;
 use App\Models\Pendaftaran;
-use App\Http\Requests\StorePemeriksaanRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class PemeriksaanController extends Controller
 {
+    /**
+     * Menampilkan daftar antrean dan kunjungan pasien di Poli Dokter.
+     */
     public function index()
     {
-        $user = Auth::user();
-        $dokter = $user->dokter;
+        $dokter = Dokter::where('user_id', Auth::id())->firstOrFail();
 
-        if (!$dokter) {
-            return redirect()->back()->with('error', 'Akun Anda tidak terhubung dengan data dokter.');
-        }
-
-        $pendaftarans = Pendaftaran::with(['pasien', 'poli', 'jadwalDokter', 'pemeriksaan'])
+        $pendaftarans = Pendaftaran::with(['pasien.user', 'pemeriksaan'])
             ->where('poli_id', $dokter->poli_id)
             ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('nomor_antrean', 'asc')
             ->get();
 
         return view('dokter.pemeriksaan.index', compact('pendaftarans', 'dokter'));
     }
 
-    public function create(Pendaftaran $pendaftaran)
+    /**
+     * Menampilkan form input rekam medis.
+     */
+    public function create($pendaftaran_id)
     {
-        $user = Auth::user();
-        $dokter = $user->dokter;
+        $dokter = Dokter::where('user_id', Auth::id())->firstOrFail();
+
+        $pendaftaran = Pendaftaran::with(['pasien.user'])
+            ->where('id', $pendaftaran_id)
+            ->where('poli_id', $dokter->poli_id)
+            ->firstOrFail();
 
         return view('dokter.pemeriksaan.create', compact('pendaftaran', 'dokter'));
     }
 
+    /**
+     * Menyimpan data rekam medis dan memperbarui status pendaftaran.
+     */
     public function store(StorePemeriksaanRequest $request)
     {
-        Pemeriksaan::create($request->validated());
+        $dokter = Dokter::where('user_id', Auth::id())->firstOrFail();
 
-        $pendaftaran = Pendaftaran::find($request->pendaftaran_id);
-        if ($pendaftaran) {
-            $pendaftaran->update(['status' => 'selesai']);
-        }
+        // Menggunakan Database Transaction untuk menjamin integritas data
+        DB::transaction(function () use ($request, $dokter) {
+            // 1. Simpan Rekam Medis Pasien
+            Pemeriksaan::create([
+                'pendaftaran_id' => $request->pendaftaran_id,
+                'dokter_id'      => $dokter->id,
+                'keluhan'        => $request->keluhan,
+                'tekanan_darah'  => $request->tekanan_darah,
+                'suhu'           => $request->suhu,
+                'berat_badan'    => $request->berat_badan,
+                'tinggi_badan'   => $request->tinggi_badan,
+                'diagnosis'      => $request->diagnosis,
+                'catatan'        => $request->catatan,
+            ]);
 
-        return redirect()->route('dokter.pemeriksaan.index')->with('success', 'Pemeriksaan dan rekam medis berhasil disimpan.');
+            // 2. Otomatis perbarui status pendaftaran menjadi 'selesai'
+            $pendaftaran = Pendaftaran::findOrFail($request->pendaftaran_id);
+            $pendaftaran->update([
+                'status' => 'selesai'
+            ]);
+        });
+
+        return redirect()
+            ->route('dokter.pemeriksaan.index')
+            ->with('success', 'Rekam medis pasien berhasil disimpan dan status kunjungan telah diperbarui!');
     }
 
-    public function show(Pemeriksaan $pemeriksaan)
+    /**
+     * Menampilkan detail rekam medis pasien.
+     */
+    public function show($id)
     {
-        $pemeriksaan->load(['pendaftaran.pasien', 'pendaftaran.poli', 'dokter.user']);
+        $pemeriksaan = Pemeriksaan::with(['pendaftaran.pasien.user', 'dokter.user', 'dokter.poli'])
+            ->findOrFail($id);
+
         return view('dokter.pemeriksaan.show', compact('pemeriksaan'));
     }
 }
