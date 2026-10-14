@@ -5,6 +5,15 @@ use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\ObatController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TagihanController;
+use App\Http\Controllers\PembayaranController;
+use App\Http\Controllers\FarmasiController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tagihan', TagihanController::class);
+    Route::post('/tagihan/{tagihan}/pembayaran', [PembayaranController::class, 'store'])
+    ->name('tagihan.pembayaran.store');
+});
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalDokterController;
@@ -87,10 +96,15 @@ Route::middleware(['auth', 'active', 'role:pasien'])
         Route::get('/pendaftaran/{pendaftaran}', [PendaftaranController::class, 'show'])
             ->whereNumber('pendaftaran')
             ->name('pendaftaran.show');
-        
+
         Route::post(
             '/pendaftaran',
             [PendaftaranController::class, 'store']
         )->name('pendaftaran.store');
-
     });
+
+// Fitur Farmasi & Resep (Dipisah di luar grup pasien)
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/farmasi', [FarmasiController::class, 'index'])->name('farmasi.index');
+    Route::put('/farmasi/{id}/status', [FarmasiController::class, 'updateStatus'])->name('farmasi.updateStatus');
+});
