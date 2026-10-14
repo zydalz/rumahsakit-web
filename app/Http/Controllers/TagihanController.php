@@ -2,63 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pendaftaran;
+use App\Models\Tagihan;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TagihanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $tagihans = Tagihan::with('pendaftaran')
+            ->latest()
+            ->get();
+
+        return view('tagihan.index', compact('tagihans'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $pendaftarans = Pendaftaran::with('pasien')
+            ->whereDoesntHave('tagihan')
+            ->orderByDesc('tanggal_kunjungan')
+            ->get();
+
+        return view('tagihan.create', compact('pendaftarans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nomor_tagihan' => [
+                'required',
+                'string',
+                'max:30',
+                'unique:tagihans,nomor_tagihan',
+            ],
+            'pendaftaran_id' => [
+                'required',
+                'integer',
+                Rule::exists('pendaftaran', 'id'),
+                Rule::unique('tagihans', 'pendaftaran_id'),
+            ],
+            'total_tagihan' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                'max:9999999999.99',
+            ],
+        ]);
+
+        Tagihan::create([
+            'nomor_tagihan' => $validated['nomor_tagihan'],
+            'pendaftaran_id' => $validated['pendaftaran_id'],
+            'total_tagihan' => $validated['total_tagihan'],
+            'status' => 'belum_lunas',
+        ]);
+
+        return redirect()
+            ->route('tagihan.index')
+            ->with('success', 'Tagihan berhasil dibuat.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
+        $tagihan = Tagihan::with([
+            'pendaftaran.pasien',
+            'detailTagihan',
+            'pembayaran',
+        ])->findOrFail($id);
+
+        return view('tagihan.show', compact('tagihan'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
-        //
+        abort(404);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        //
+        abort(404);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
+        abort(404);
     }
 }

@@ -11,7 +11,8 @@ use App\Http\Controllers\FarmasiController;
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('tagihan', TagihanController::class);
-    Route::post('/tagihan/{id}/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::post('/tagihan/{tagihan}/pembayaran', [PembayaranController::class, 'store'])
+    ->name('tagihan.pembayaran.store');
 });
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
