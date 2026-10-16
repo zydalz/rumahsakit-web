@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Resep;
 
 class Pendaftaran extends Model
 {
@@ -63,5 +65,11 @@ public function tagihan(): \Illuminate\Database\Eloquent\Relations\HasOne
 {
     return $this->hasOne(\App\Models\Tagihan::class, 'pendaftaran_id');
 }
+
+public function reseps(): HasMany
+{
+    return $this->hasMany(Resep::class, 'pendaftaran_id');
+}
+
 
 }

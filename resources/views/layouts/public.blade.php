@@ -39,45 +39,85 @@
                 </span>
             </a>
 
-            {{-- Navigasi --}}
-            <nav aria-label="Navigasi utama"
-                 class="order-3 flex w-full flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium md:order-none md:w-auto">
+            
+{{-- Navigasi --}}
+<nav aria-label="Navigasi utama"
+     class="order-3 flex w-full flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium md:order-none md:w-auto">
 
-                <a href="{{ route('home') }}"
-                   class="text-oasis-blue hover:text-oasis-teal">
-                    Beranda
-                </a>
+    <a href="{{ route('home') }}"
+       class="text-oasis-blue hover:text-oasis-teal">
+        Beranda
+    </a>
 
-                <a href="{{ route('home') }}#tentang"
-                   class="text-slate-600 transition hover:text-oasis-blue">
-                    Tentang Kami
-                </a>
+    <a href="{{ route('home') }}#tentang"
+       class="text-slate-600 transition hover:text-oasis-blue">
+        Tentang Kami
+    </a>
 
-                <a href="{{ route('home') }}#layanan"
-                   class="text-slate-600 transition hover:text-oasis-blue">
-                    Layanan
-                </a>
-            </nav>
+    <a href="{{ route('home') }}#layanan"
+       class="text-slate-600 transition hover:text-oasis-blue">
+        Layanan
+    </a>
 
-            {{-- Aksi pengguna --}}
-            <div class="flex items-center gap-3">
-                @auth
-                    <a href="{{ route('dashboard') }}"
-                       class="rounded-lg bg-oasis-blue px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-oasis-navy">
-                        Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}"
-                       class="hidden rounded-lg px-3 py-2.5 text-sm font-semibold text-oasis-blue transition hover:bg-blue-50 sm:inline-flex">
-                        Login
-                    </a>
+    @auth
+        @if (auth()->user()->role === 'pasien')
+            <a href="{{ route('pasien.pendaftaran.index') }}"
+               class="text-slate-600 hover:text-oasis-blue">
+                Pendaftaran
+            </a>
+        @elseif (auth()->user()->role === 'dokter')
+            <a href="{{ route('dokter.pemeriksaan.index') }}"
+               class="text-slate-600 hover:text-oasis-blue">
+                Pemeriksaan
+            </a>
+        @elseif (auth()->user()->role === 'farmasi')
+            <a href="{{ route('farmasi.obat.index') }}"
+               class="text-slate-600 hover:text-oasis-blue">
+                Data Obat
+            </a>
+        @elseif (auth()->user()->role === 'admin')
+            <a href="{{ route('admin.pasien.index') }}"
+               class="text-slate-600 hover:text-oasis-blue">
+                Data Pasien
+            </a>
+        @endif
+    @endauth
+</nav>
 
-                    <a href="{{ route('register') }}"
-                       class="rounded-lg bg-oasis-blue px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-oasis-navy">
-                        Daftar
-                    </a>
-                @endauth
-            </div>
+
+            
+{{-- Aksi pengguna --}}
+<div class="flex flex-wrap items-center gap-3">
+    @auth
+        <span class="hidden text-sm text-slate-600 sm:inline">
+            {{ auth()->user()->name }}
+        </span>
+
+        <a href="{{ route('dashboard') }}"
+           class="rounded-lg bg-oasis-blue px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-oasis-navy">
+            Dashboard
+        </a>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit"
+                    class="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50">
+                Logout
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login') }}"
+           class="hidden rounded-lg px-3 py-2.5 text-sm font-semibold text-oasis-blue hover:bg-blue-50 sm:inline-flex">
+            Login
+        </a>
+
+        <a href="{{ route('register') }}"
+           class="rounded-lg bg-oasis-blue px-4 py-2.5 text-sm font-semibold text-white hover:bg-oasis-navy">
+            Daftar
+        </a>
+    @endauth
+</div>
+
         </div>
     </header>
 

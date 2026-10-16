@@ -11,9 +11,13 @@ use App\Http\Controllers\FarmasiController;
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('tagihan', TagihanController::class);
-    Route::post('/tagihan/{tagihan}/pembayaran', [PembayaranController::class, 'store'])
-    ->name('tagihan.pembayaran.store');
+
+    Route::post(
+        '/tagihan/{tagihan}/pembayaran',
+        [PembayaranController::class, 'store']
+    )->name('tagihan.pembayaran.store');
 });
+
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalDokterController;
@@ -58,8 +62,42 @@ Route::middleware('guest')->group(function () {
 // Fitur pengguna yang sudah login dan aktif
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    $user = auth()->user();
+
+    return match ($user->role) {
+        'pasien' => view('dashboard'),
+        'dokter' => redirect()->route('dokter.dashboard'),
+        'farmasi' => redirect()->route('farmasi.index'),
+        'kasir' => view('role-dashboard', [
+    'title' => 'Dashboard Kasir',
+    'description' => 'Kelola tagihan dan pembayaran pasien.',
+    'menus' => [
+        [
+            'label' => 'Daftar Tagihan',
+            'description' => 'Lihat dan kelola tagihan pasien.',
+            'route' => 'tagihan.index',
+        ],
+    ],
+]),
+        'admin' => view('role-dashboard', [
+            'title' => 'Dashboard Admin',
+            'description' => 'Kelola data dan administrasi rumah sakit.',
+            'menus' => [
+                [
+                    'label' => 'Data Pasien',
+                    'description' => 'Lihat dan kelola data pasien.',
+                    'route' => 'admin.pasien.index',
+                ],
+                [
+                    'label' => 'Data Obat',
+                    'description' => 'Kelola data obat rumah sakit.',
+                    'route' => 'farmasi.obat.index',
+                ],
+            ],
+        ]),
+        default => abort(403, 'Role akun belum memiliki dashboard.'),
+    };
+})->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
