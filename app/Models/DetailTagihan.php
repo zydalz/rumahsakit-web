@@ -24,4 +24,11 @@ class DetailTagihan extends Model
     {
         return $this->belongsTo(Tagihan::class, 'tagihan_id');
     }
+
+    
+public function obat()
+{
+    return $this->belongsTo(Obat::class, 'obat_id');
+}
+
 }

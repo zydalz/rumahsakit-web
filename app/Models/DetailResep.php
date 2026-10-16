@@ -16,12 +16,16 @@ class DetailResep extends Model
         'obat_id',
         'jumlah',
         'dosis',
-        'subtotal',
+        'instruksi_khusus',
     ];
 
-    // Relasi balik ke Resep
     public function resep()
     {
-        return $this->belongsTo(Resep::class, 'resep_id', 'id');
+        return $this->belongsTo(Resep::class, 'resep_id');
+    }
+
+    public function obat()
+    {
+        return $this->belongsTo(Obat::class, 'obat_id');
     }
 }

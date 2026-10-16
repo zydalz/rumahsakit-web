@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePemeriksaanRequest;
 use App\Models\Dokter;
+use App\Models\Obat;
 use App\Models\Pemeriksaan;
 use App\Models\Pendaftaran;
+use App\Models\Resep;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PemeriksaanController extends Controller
 {
@@ -32,10 +35,10 @@ class PemeriksaanController extends Controller
             ->orderBy('nomor_antrean')
             ->get();
 
-        return view(
-            'dokter.pemeriksaan.index',
-            compact('pendaftarans', 'dokter')
-        );
+        return view('dokter.pemeriksaan.index', compact(
+            'pendaftarans',
+            'dokter'
+        ));
     }
 
     public function create($pendaftaran_id)
@@ -43,25 +46,36 @@ class PemeriksaanController extends Controller
         $dokter = $this->dokterLogin();
 
         $pendaftaran = Pendaftaran::with(['pasien.user', 'poli'])
-            ->where('id', $pendaftaran_id)
+            ->whereKey($pendaftaran_id)
             ->where('poli_id', $dokter->poli_id)
             ->firstOrFail();
 
         if ($pendaftaran->pemeriksaan()->exists()) {
-            return redirect()
-                ->route('dokter.pemeriksaan.show', $pendaftaran->pemeriksaan->id);
+            return redirect()->route(
+                'dokter.pemeriksaan.show',
+                $pendaftaran->pemeriksaan->id
+            );
         }
 
-        return view(
-            'dokter.pemeriksaan.create',
-            compact('pendaftaran', 'dokter')
-        );
+        $obats = Obat::where('is_active', true)
+            ->where('stok', '>', 0)
+            ->orderBy('nama_obat')
+            ->get();
+
+        return view('dokter.pemeriksaan.create', compact(
+            'pendaftaran',
+            'dokter',
+            'obats'
+        ));
     }
 
     public function store(StorePemeriksaanRequest $request)
     {
-        $dokter = $this->dokterLogin();
+       \Log::info('DEBUG STORE PEMERIKSAAN TERPANGGIL');
+
+    $dokter = $this->dokterLogin();
         $data = $request->validated();
+
 
         $pemeriksaan = DB::transaction(function () use ($data, $dokter) {
             $pendaftaran = Pendaftaran::whereKey($data['pendaftaran_id'])
@@ -85,6 +99,38 @@ class PemeriksaanController extends Controller
                 'catatan' => $data['catatan'] ?? null,
             ]);
 
+            $daftarObat = $data['obat'] ?? [];
+
+            if (!empty($daftarObat)) {
+                $resep = Resep::create([
+                    'pendaftaran_id' => $pendaftaran->id,
+                    'kode_resep' => 'RSP-' . now()->format('YmdHis')
+                        . '-' . Str::upper(Str::random(4)),
+                    'catatan_dokter' => $data['catatan'] ?? null,
+                    'status' => 'menunggu',
+                ]);
+
+                foreach ($daftarObat as $item) {
+                    $obat = Obat::whereKey($item['obat_id'])
+                        ->where('is_active', true)
+                        ->lockForUpdate()
+                        ->firstOrFail();
+
+                    if ($obat->stok < (int) $item['jumlah']) {
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'obat' => "Stok {$obat->nama_obat} tidak mencukupi.",
+                        ]);
+                    }
+
+                    $resep->detailReseps()->create([
+                        'obat_id' => $obat->id,
+                        'jumlah' => (int) $item['jumlah'],
+                        'dosis' => $item['dosis'],
+                        'instruksi_khusus' => $item['instruksi_khusus'] ?? null,
+                    ]);
+                }
+            }
+
             $pendaftaran->update(['status' => 'selesai']);
 
             return $pemeriksaan;
@@ -92,7 +138,7 @@ class PemeriksaanController extends Controller
 
         return redirect()
             ->route('dokter.pemeriksaan.show', $pemeriksaan->id)
-            ->with('success', 'Rekam medis berhasil disimpan.');
+            ->with('success', 'Pemeriksaan berhasil disimpan.');
     }
 
     public function show($id)

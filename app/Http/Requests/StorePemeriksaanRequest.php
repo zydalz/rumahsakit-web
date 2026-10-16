@@ -30,6 +30,31 @@ class StorePemeriksaanRequest extends FormRequest
             'tinggi_badan'   => ['nullable', 'numeric', 'between:30,250'],
             'diagnosis'      => ['required', 'string'],
             'catatan'        => ['nullable', 'string'],
+            
+            'obat' => ['nullable', 'array'],
+            'obat.*.obat_id' => [
+                'required',
+                'integer',
+                'distinct',
+                'exists:obats,id',
+            ],
+            'obat.*.jumlah' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:1000',
+            ],
+            'obat.*.dosis' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'obat.*.instruksi_khusus' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+
         ];
     }
 
@@ -43,6 +68,14 @@ class StorePemeriksaanRequest extends FormRequest
             'suhu.between'            => 'Nilai suhu tubuh tidak valid (30 - 45 °C).',
             'berat_badan.between'     => 'Nilai berat badan tidak valid.',
             'tinggi_badan.between'    => 'Nilai tinggi badan tidak valid.',
+            
+            'obat.*.obat_id.required' => 'Silakan pilih obat yang akan diresepkan.',
+            'obat.*.obat_id.exists' => 'Obat yang dipilih tidak ditemukan.',
+            'obat.*.obat_id.distinct' => 'Obat yang sama tidak boleh dipilih dua kali.',
+            'obat.*.jumlah.required' => 'Jumlah obat wajib diisi.',
+            'obat.*.jumlah.min' => 'Jumlah obat minimal 1.',
+            'obat.*.dosis.required' => 'Dosis obat wajib diisi.',
+
         ];
     }
     

@@ -3,33 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Rumah Sakit - PT Oasis Husada</title>
+    <title>@yield('title', 'Dashboard') - PT Oasis Husada</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#F3F7F9] font-sans antialiased">
-    <div class="min-h-screen">
-        <!-- Navbar Sederhana -->
-        <nav class="bg-white border-b border-gray-100 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex items-center">
-                        <span class="font-bold text-lg text-[#173D59]">PT Oasis Husada (Modul Farmasi)</span>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-sm text-gray-600">{{ Auth::user()->name ?? 'Administrator' }}</span>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-sm text-red-600 hover:underline">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </nav>
+<body class="min-h-screen bg-slate-50 font-sans text-slate-700 antialiased">
 
-        <!-- Page Content -->
-        <main>
+@php
+    $user = auth()->user();
+    $role = $user?->role;
+
+    $menus = match ($role) {
+        'dokter' => [
+            ['label' => 'Dashboard', 'route' => 'dokter.dashboard'],
+            ['label' => 'Pemeriksaan Pasien', 'route' => 'dokter.pemeriksaan.index'],
+        ],
+        'farmasi' => [
+            ['label' => 'Dashboard', 'route' => 'farmasi.index'],
+            ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
+        ],
+        'admin' => [
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Data Pasien', 'route' => 'admin.pasien.index'],
+            ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
+        ],
+        default => [],
+    };
+@endphp
+
+<div class="min-h-screen md:flex">
+
+    {{-- Sidebar --}}
+    <aside class="w-full shrink-0 border-b border-slate-200 bg-white md:min-h-screen md:w-64 md:border-b-0 md:border-r">
+        <div class="flex items-center gap-3 border-b border-slate-100 px-6 py-5">
+            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-700 font-bold text-white">
+                OH
+            </span>
+
+            <div>
+                <p class="font-bold text-slate-800">Oasis Husada</p>
+                <p class="text-xs text-slate-500">Sistem Informasi Rumah Sakit</p>
+            </div>
+        </div>
+
+        <div class="px-5 py-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Menu Utama
+            </p>
+
+            <nav class="mt-3 flex flex-wrap gap-2 md:flex-col">
+                @foreach ($menus as $menu)
+                    @if (\Illuminate\Support\Facades\Route::has($menu['route']))
+                        <a href="{{ route($menu['route']) }}"
+                           class="rounded-lg px-4 py-3 text-sm font-medium transition
+                           {{ request()->routeIs($menu['route'])
+                               ? 'bg-sky-50 text-sky-800'
+                               : 'text-slate-600 hover:bg-slate-50 hover:text-sky-800' }}">
+                            {{ $menu['label'] }}
+                        </a>
+                    @endif
+                @endforeach
+            </nav>
+        </div>
+
+        <div class="border-t border-slate-100 px-5 py-5 md:mt-4">
+            <p class="text-sm font-semibold text-slate-800">
+                {{ $user?->name ?? 'Pengguna' }}
+            </p>
+            <p class="mt-1 text-xs text-slate-500">
+                {{ ucfirst($role ?? 'pengguna') }}
+            </p>
+
+            <a href="{{ route('home') }}"
+               class="mt-4 block rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                Beranda Publik
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                @csrf
+                <button type="submit"
+                        class="w-full rounded-lg px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    {{-- Konten --}}
+    <div class="min-w-0 flex-1">
+        <header class="border-b border-slate-200 bg-white px-6 py-4 sm:px-8">
+            <p class="text-sm text-slate-500">
+                PT Oasis Husada
+            </p>
+            <h1 class="mt-1 text-lg font-semibold text-slate-800">
+                @yield('header', 'Dashboard')
+            </h1>
+        </header>
+
+        <main class="p-5 sm:p-8">
+            @if (session('success'))
+                <div class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>
+
+</div>
 </body>
 </html>
