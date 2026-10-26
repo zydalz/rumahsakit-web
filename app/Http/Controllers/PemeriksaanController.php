@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePemeriksaanRequest;
+use App\Models\AuditLog;
 use App\Models\Dokter;
 use App\Models\Obat;
 use App\Models\Pemeriksaan;
@@ -205,6 +206,12 @@ class PemeriksaanController extends Controller
 
             return $pemeriksaan;
         });
+
+        AuditLog::catat(
+            'Pemeriksaan Medis',
+            'Simpan Rekam Medis',
+            "Dokter {$dokter->nama_dokter} menyelesaikan pemeriksaan pasien " . ($pemeriksaan->pendaftaran->pasien->nama ?? '-') . " dengan diagnosis: {$pemeriksaan->diagnosis}"
+        );
 
         return redirect()
             ->route('dokter.pemeriksaan.show', $pemeriksaan->id)

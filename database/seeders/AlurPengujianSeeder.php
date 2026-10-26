@@ -10,6 +10,7 @@ use App\Models\JadwalDokter;
 use App\Models\Pendaftaran;
 use App\Models\Pemeriksaan;
 use App\Models\Resep;
+use App\Models\AuditLog;
 use App\Models\DetailResep;
 use App\Models\Obat;
 use App\Models\Tagihan;
@@ -291,6 +292,81 @@ class AlurPengujianSeeder extends Seeder
                         'catatan_admin' => $itemDaftar['catatan_admin'],
                         'created_by' => $admin->id,
                     ]
+                );
+            }
+
+            // Tambahkan data log aktivitas awal untuk pengujian audit trail
+            $logsAwal = [
+                [
+                    'user_id' => $admin->id,
+                    'user_name' => $admin->name,
+                    'role' => 'admin',
+                    'modul' => 'Autentikasi',
+                    'aksi' => 'Login',
+                    'deskripsi' => 'Pengguna ' . $admin->name . ' (' . $admin->email . ') berhasil login sebagai ADMIN',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHours(5),
+                ],
+                [
+                    'user_id' => $admin->id,
+                    'user_name' => $admin->name,
+                    'role' => 'admin',
+                    'modul' => 'Pendaftaran',
+                    'aksi' => 'Konfirmasi Pendaftaran',
+                    'deskripsi' => 'Admin mengonfirmasi kunjungan UJI-ALUR-MENUNGGU-01 untuk pasien ' . $pasienBudi->nama . ' ke Poli Umum',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHours(4),
+                ],
+                [
+                    'user_id' => $dokter->user->id ?? $admin->id,
+                    'user_name' => $dokter->nama_dokter,
+                    'role' => 'dokter',
+                    'modul' => 'Pelayanan Poli',
+                    'aksi' => 'Panggil Antrean',
+                    'deskripsi' => 'Memanggil antrean #1 atas nama ' . $pasienBudi->nama . ' ke ruang Poli Umum',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHours(3)->subMinutes(30),
+                ],
+                [
+                    'user_id' => $dokter->user->id ?? $admin->id,
+                    'user_name' => $dokter->nama_dokter,
+                    'role' => 'dokter',
+                    'modul' => 'Pemeriksaan Medis',
+                    'aksi' => 'Simpan Rekam Medis',
+                    'deskripsi' => 'Dokter ' . $dokter->nama_dokter . ' menyelesaikan pemeriksaan pasien ' . $pasienBudi->nama . ' dengan diagnosis: Febris Observasi / Demam Akut',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHours(3),
+                ],
+                [
+                    'user_id' => $kasir->id,
+                    'user_name' => $kasir->name,
+                    'role' => 'kasir',
+                    'modul' => 'Kasir & Tagihan',
+                    'aksi' => 'Pencatatan Pembayaran',
+                    'deskripsi' => 'Kasir mencatat pembayaran Rp 45.000 via tunai untuk tagihan TAG-ALUR-001 (Lunas)',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHours(2),
+                ],
+                [
+                    'user_id' => $admin->id,
+                    'user_name' => 'Apoteker Oasis Husada',
+                    'role' => 'farmasi',
+                    'modul' => 'Farmasi',
+                    'aksi' => 'Penyerahan Obat',
+                    'deskripsi' => 'Petugas farmasi menyerahkan obat resep RSP-ALUR-001 kepada pasien ' . $pasienBudi->nama . ' dan memotong stok obat otomatis',
+                    'ip_address' => '127.0.0.1',
+                    'created_at' => Carbon::now()->subHour(),
+                ],
+            ];
+
+            foreach ($logsAwal as $logData) {
+                AuditLog::firstOrCreate(
+                    [
+                        'modul' => $logData['modul'],
+                        'aksi' => $logData['aksi'],
+                        'deskripsi' => $logData['deskripsi'],
+                    ],
+                    $logData
                 );
             }
         });

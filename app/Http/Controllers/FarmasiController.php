@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\DetailResep;
 use App\Models\Obat;
 use App\Models\Resep;
@@ -94,11 +95,23 @@ class FarmasiController extends Controller
                 $resep->update(['status' => 'selesai']);
             });
 
+            AuditLog::catat(
+                'Farmasi',
+                'Penyerahan Obat',
+                "Petugas farmasi menyerahkan obat resep {$resep->kode_resep} kepada pasien " . ($resep->pendaftaran->pasien->nama ?? '-') . " dan memotong stok obat otomatis"
+            );
+
             return redirect()->back()->with('success', 'Obat berhasil diserahkan kepada pasien dan persediaan stok obat telah terpotong otomatis.');
         }
 
         // Perubahan status antrean lainnya (misal: siap_diserahkan atau diproses)
         $resep->update(['status' => $statusBaru]);
+
+        AuditLog::catat(
+            'Farmasi',
+            'Pembaruan Status Resep',
+            "Status resep {$resep->kode_resep} diubah menjadi '{$statusBaru}' oleh farmasi"
+        );
 
         return redirect()->back()->with('success', 'Status resep berhasil diperbarui!');
     }

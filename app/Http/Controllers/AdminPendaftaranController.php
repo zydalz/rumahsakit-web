@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 
@@ -48,6 +49,12 @@ class AdminPendaftaranController extends Controller
             'catatan_admin' => $request->input('catatan_admin') ?? 'Kunjungan dikonfirmasi oleh admin. Silakan hadir sesuai jam estimasi.',
         ]);
 
+        AuditLog::catat(
+            'Pendaftaran',
+            'Konfirmasi Pendaftaran',
+            "Admin mengonfirmasi kunjungan {$pendaftaran->kode_pendaftaran} untuk pasien " . ($pendaftaran->pasien->nama ?? '-') . " ke " . ($pendaftaran->poli->nama_poli ?? 'Poli')
+        );
+
         return redirect()->back()->with('success', "Pendaftaran {$pendaftaran->kode_pendaftaran} berhasil dikonfirmasi. Pasien siap dilayani.");
     }
 
@@ -67,6 +74,12 @@ class AdminPendaftaranController extends Controller
             'status_verifikasi' => 'dibatalkan',
             'catatan_admin' => $validated['catatan_admin'],
         ]);
+
+        AuditLog::catat(
+            'Pendaftaran',
+            'Pembatalan Pendaftaran',
+            "Admin membatalkan pendaftaran {$pendaftaran->kode_pendaftaran} pasien " . ($pendaftaran->pasien->nama ?? '-') . ". Alasan: {$validated['catatan_admin']}"
+        );
 
         return redirect()->back()->with('success', "Pendaftaran {$pendaftaran->kode_pendaftaran} telah dibatalkan.");
     }

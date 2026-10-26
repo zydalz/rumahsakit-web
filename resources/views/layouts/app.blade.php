@@ -16,6 +16,7 @@
         'kepala_rs' => [
             ['label' => 'Dashboard Eksekutif', 'route' => 'kepala-rs.dashboard'],
             ['label' => 'Laporan Kinerja & Pelayanan', 'route' => 'kepala-rs.laporan'],
+            ['label' => 'Log Aktivitas Sistem', 'route' => 'kepala-rs.audit-log.index'],
             ['label' => 'Display Antrean', 'route' => 'antrean.display'],
         ],
         'dokter' => [
@@ -41,6 +42,7 @@
             ['label' => 'Resep & Farmasi', 'route' => 'farmasi.index'],
             ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
             ['label' => 'Kelola Galeri Web', 'route' => 'admin.galeri.index'],
+            ['label' => 'Log Aktivitas Sistem', 'route' => 'admin.audit-log.index'],
             ['label' => 'Laporan Eksekutif', 'route' => 'kepala-rs.laporan'],
             ['label' => 'Display Antrean', 'route' => 'antrean.display'],
         ],

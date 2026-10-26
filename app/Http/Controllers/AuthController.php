@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,12 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        AuditLog::catat(
+            'Autentikasi',
+            'Login',
+            "Pengguna " . Auth::user()->name . " (" . Auth::user()->email . ") berhasil login sebagai " . strtoupper(Auth::user()->role)
+        );
 
         return redirect()->intended(route('dashboard'));
     }
@@ -87,6 +94,13 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        AuditLog::catat(
+            'Autentikasi',
+            'Registrasi Pasien Baru',
+            "Pasien baru {$user->name} ({$user->email}) berhasil mendaftar akun mandiri",
+            $user
+        );
+
         return redirect()->route('dashboard')
             ->with('success', 'Registrasi berhasil. Selamat datang.');
     }
@@ -94,6 +108,17 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user) {
+            AuditLog::catat(
+                'Autentikasi',
+                'Logout',
+                "Pengguna {$user->name} ({$user->email}) keluar dari sistem",
+                $user
+            );
+        }
+
         Auth::logout();
 
         $request->session()->invalidate();

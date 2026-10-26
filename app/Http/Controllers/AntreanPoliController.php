@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Dokter;
 use App\Models\Pendaftaran;
 use App\Models\Poli;
@@ -40,6 +41,12 @@ class AntreanPoliController extends Controller
 
         $namaPasien = $pendaftaran->pasien->nama ?? 'Pasien';
         $nomorAntrean = $pendaftaran->nomor_antrean;
+
+        AuditLog::catat(
+            'Pelayanan Poli',
+            'Panggil Antrean',
+            "Memanggil antrean #{$nomorAntrean} atas nama {$namaPasien} ke ruang " . ($pendaftaran->poli->nama_poli ?? 'Poli')
+        );
 
         return redirect()->back()->with([
             'success' => "Nomor antrean #{$nomorAntrean} atas nama {$namaPasien} sedang dipanggil.",

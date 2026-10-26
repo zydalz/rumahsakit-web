@@ -98,6 +98,9 @@ Route::middleware(['auth', 'active', 'role:admin'])
 
         Route::post('pendaftaran/{pendaftaran}/batalkan', [\App\Http\Controllers\AdminPendaftaranController::class, 'batalkan'])
             ->name('pendaftaran.batalkan');
+
+        Route::get('audit-log', [\App\Http\Controllers\AuditLogController::class, 'index'])
+            ->name('audit-log.index');
     });
 
 // Fitur Khusus Kepala Rumah Sakit & Eksekutif (Pimpinan RS)
@@ -108,6 +111,7 @@ Route::middleware(['auth', 'active', 'role:kepala_rs,admin'])
         Route::get('/dashboard', [KepalaRumahSakitController::class, 'dashboard'])->name('dashboard');
         Route::get('/laporan', [KepalaRumahSakitController::class, 'laporan'])->name('laporan');
         Route::get('/laporan/cetak', [KepalaRumahSakitController::class, 'cetakLaporan'])->name('laporan.cetak');
+        Route::get('/audit-log', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-log.index');
     });
 
 // Fitur obat untuk admin dan farmasi

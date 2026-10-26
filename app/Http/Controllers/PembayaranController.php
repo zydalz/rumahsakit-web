@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
 use App\Models\Resep;
@@ -95,6 +96,12 @@ class PembayaranController extends Controller
                     ->update(['status' => 'siap_diserahkan']);
             }
         });
+
+        AuditLog::catat(
+            'Kasir & Tagihan',
+            'Pencatatan Pembayaran',
+            "Kasir mencatat pembayaran Rp " . number_format($validated['jumlah_bayar'], 0, ',', '.') . " via {$validated['metode']} untuk tagihan {$tagihan->nomor_tagihan}"
+        );
 
         return redirect()
             ->route('tagihan.show', $tagihan->id)
