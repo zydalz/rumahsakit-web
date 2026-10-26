@@ -13,7 +13,7 @@
     {{-- Header --}}
     <div class="mb-8">
         <p class="text-sm font-medium text-sky-700">
-            Dashboard Pasien
+            Dashboard Pasien &bull; PT Oasis Husada
         </p>
 
         <h1 class="mt-2 text-2xl font-bold text-slate-800 sm:text-3xl">
@@ -21,7 +21,7 @@
         </h1>
 
         <p class="mt-2 text-sm text-slate-500">
-            Kelola informasi dan kebutuhan layanan kesehatan Anda melalui halaman ini.
+            Pantau status antrean, riwayat pemeriksaan, serta tagihan layanan kesehatan Anda.
         </p>
     </div>
 
@@ -38,7 +38,39 @@
         </div>
     @endif
 
-    {{-- Informasi Pasien --}}
+    {{-- Kunjungan Hari Ini (Jika Ada) --}}
+    @if(!empty($kunjunganHariIni))
+        <div class="mb-8 overflow-hidden rounded-2xl border-2 border-sky-300 bg-gradient-to-r from-sky-50 to-indigo-50 p-6 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <span class="inline-flex rounded-full bg-sky-700 px-3 py-1 text-xs font-semibold text-white">
+                        Jadwal Kunjungan Hari Ini
+                    </span>
+                    <h2 class="mt-3 text-xl font-bold text-slate-800">
+                        {{ $kunjunganHariIni->poli?->nama_poli ?? 'Poliklinik Rawat Jalan' }}
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-600">
+                        Dokter: {{ $kunjunganHariIni->jadwalDokter?->dokter?->user?->name ?? 'Dokter Ditugaskan' }}
+                    </p>
+                    <p class="mt-0.5 text-xs text-slate-500">
+                        Kode Registrasi: <span class="font-semibold text-slate-700">{{ $kunjunganHariIni->kode_pendaftaran }}</span>
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-4 rounded-xl bg-white p-4 shadow-sm border border-slate-200">
+                    <div class="text-right">
+                        <p class="text-xs font-medium text-slate-500">Nomor Antrean Anda</p>
+                        <p class="text-xs text-slate-400">Status: {{ ucfirst($kunjunganHariIni->status) }}</p>
+                    </div>
+                    <span class="flex h-14 w-14 items-center justify-center rounded-xl bg-sky-700 text-2xl font-black text-white shadow-inner">
+                        #{{ $kunjunganHariIni->nomor_antrean }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Informasi Pasien & Profil --}}
     <div class="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -46,7 +78,7 @@
                     Informasi Pasien
                 </h2>
                 <p class="mt-1 text-sm text-slate-500">
-                    Informasi dasar akun dan nomor rekam medis Anda.
+                    Data identitas rekam medis resmi Anda di PT Oasis Husada.
                 </p>
             </div>
 
@@ -55,57 +87,131 @@
             </span>
         </div>
 
-        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <div class="rounded-xl bg-slate-50 p-4">
-                <p class="text-sm text-slate-500">Nama Pasien</p>
+                <p class="text-xs text-slate-500">Nama Pasien</p>
                 <p class="mt-1 font-semibold text-slate-800">
                     {{ $pasien?->nama ?? $user->name }}
                 </p>
             </div>
 
             <div class="rounded-xl bg-slate-50 p-4">
-                <p class="text-sm text-slate-500">Nomor Rekam Medis</p>
-                <p class="mt-1 font-semibold text-slate-800">
-                    {{ $pasien?->nomor_rm ?? 'Belum tersedia' }}
+                <p class="text-xs text-slate-500">Nomor Rekam Medis</p>
+                <p class="mt-1 font-semibold text-sky-700">
+                    {{ $pasien?->nomor_rm ?? 'Belum terbit' }}
                 </p>
             </div>
 
             <div class="rounded-xl bg-slate-50 p-4">
-                <p class="text-sm text-slate-500">Email</p>
+                <p class="text-xs text-slate-500">Email Terdaftar</p>
                 <p class="mt-1 break-words font-semibold text-slate-800">
                     {{ $user->email }}
                 </p>
             </div>
 
             <div class="rounded-xl bg-slate-50 p-4">
-                <p class="text-sm text-slate-500">Status Profil</p>
+                <p class="text-xs text-slate-500">Status Profil Medis</p>
                 <p class="mt-1 font-semibold {{ $pasien ? 'text-green-700' : 'text-amber-700' }}">
-                    {{ $pasien ? 'Profil tersedia' : 'Profil belum terhubung' }}
+                    {{ $pasien ? 'Profil Lengkap' : 'Profil Belum Lengkap' }}
                 </p>
             </div>
         </div>
     </div>
 
-    {{-- Layanan --}}
+    {{-- Riwayat Kunjungan & Tagihan Pasien (Jika Ada Data) --}}
+    @if(!empty($riwayatKunjungan) && $riwayatKunjungan->isNotEmpty())
+        <div class="mb-8 grid gap-8 lg:grid-cols-2">
+
+            {{-- Riwayat Kunjungan & Medis Terakhir --}}
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h2 class="text-base font-bold text-slate-800">
+                        Riwayat Kunjungan Terakhir
+                    </h2>
+                    @if (\Illuminate\Support\Facades\Route::has('pasien.pendaftaran.index'))
+                        <a href="{{ route('pasien.pendaftaran.index') }}" class="text-xs font-semibold text-sky-700 hover:text-sky-800">
+                            Semua Riwayat &rarr;
+                        </a>
+                    @endif
+                </div>
+
+                <div class="mt-4 divide-y divide-slate-100">
+                    @foreach($riwayatKunjungan as $kunjungan)
+                        <div class="py-3">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-semibold text-slate-800">
+                                    {{ $kunjungan->poli?->nama_poli ?? 'Poli' }}
+                                </p>
+                                <span class="text-xs text-slate-500">
+                                    {{ $kunjungan->tanggal_kunjungan ? $kunjungan->tanggal_kunjungan->format('d M Y') : '-' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Dokter: {{ $kunjungan->pemeriksaan?->dokter?->user?->name ?? 'Belum ada catatan' }}
+                            </p>
+                            @if($kunjungan->pemeriksaan?->diagnosis)
+                                <p class="mt-1 text-xs text-slate-600 bg-slate-50 rounded p-1.5 border border-slate-100">
+                                    <span class="font-medium text-slate-700">Diagnosis:</span> {{ $kunjungan->pemeriksaan->diagnosis }}
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Status Tagihan Pasien --}}
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h2 class="text-base font-bold text-slate-800">
+                        Status Tagihan Biaya Medis
+                    </h2>
+                    <span class="text-xs text-slate-400">Kasir Oasis Husada</span>
+                </div>
+
+                <div class="mt-4 divide-y divide-slate-100">
+                    @forelse($tagihanPasien as $tagihan)
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-800">{{ $tagihan->nomor_tagihan }}</p>
+                                <p class="text-xs text-slate-500">
+                                    Total: Rp{{ number_format($tagihan->total_tagihan, 0, ',', '.') }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold
+                                    {{ $tagihan->status === 'lunas' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800' }}">
+                                    {{ $tagihan->status === 'lunas' ? 'LUNAS' : 'Sisa Rp' . number_format($tagihan->sisa_tagihan, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="py-6 text-center text-sm text-slate-400">
+                            Belum ada riwayat tagihan biaya.
+                        </p>
+                    @endforelse
+                </div>
+            </div>
+
+        </div>
+    @endif
+
+    {{-- Layanan Cepat Pasien --}}
     <div class="mb-4">
         <h2 class="text-lg font-semibold text-slate-800">
-            Layanan Pasien
+            Akses Layanan Pasien
         </h2>
         <p class="mt-1 text-sm text-slate-500">
-            Pilih layanan yang ingin Anda akses.
+            Pilih tindakan cepat untuk kebutuhan kunjungan Anda.
         </p>
     </div>
 
     <div class="grid gap-5 md:grid-cols-2">
 
-        {{-- Pendaftaran --}}
+        {{-- Pendaftaran Rawat Jalan --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="24" height="24" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor"
-                     stroke-width="1.8" stroke-linecap="round"
-                     stroke-linejoin="round" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="5" width="18" height="16" rx="2"/>
                     <path d="M16 3v4M8 3v4M3 11h18M12 14v4M10 16h4"/>
                 </svg>
@@ -116,7 +222,7 @@
             </h3>
 
             <p class="mt-2 text-sm leading-6 text-slate-500">
-                Daftarkan kunjungan, pilih poli dan jadwal dokter, serta lihat informasi pendaftaran Anda.
+                Daftarkan kunjungan baru, pilih poliklinik dan dokter, serta dapatkan nomor antrean otomatis.
             </p>
 
             <div class="mt-5 flex flex-wrap gap-3">
@@ -136,25 +242,22 @@
             </div>
         </div>
 
-        {{-- Informasi akun --}}
+        {{-- Informasi Akun & Logout --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="24" height="24" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor"
-                     stroke-width="1.8" stroke-linecap="round"
-                     stroke-linejoin="round" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="8" r="4"/>
                     <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
                 </svg>
             </div>
 
             <h3 class="mt-4 text-base font-semibold text-slate-800">
-                Informasi Akun
+                Akses Akun
             </h3>
 
             <p class="mt-2 text-sm leading-6 text-slate-500">
-                Pastikan Anda menggunakan akun yang benar saat mengakses layanan rumah sakit.
+                Kelola sesi akun Anda dan pastikan informasi keamanan selalu terjaga.
             </p>
 
             <div class="mt-5">
@@ -170,7 +273,7 @@
 
     </div>
 
-    {{-- Catatan --}}
+    {{-- Catatan Profil --}}
     @unless ($pasien)
         <div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
             <p class="text-sm leading-6 text-amber-800">
