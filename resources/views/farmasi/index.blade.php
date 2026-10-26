@@ -10,18 +10,39 @@
     <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
             <h2 class="text-2xl font-bold text-slate-800">
-                Daftar Resep
+                Layanan Farmasi & Obat
             </h2>
             <p class="mt-1 text-sm text-slate-500">
-                Kelola resep dan informasi obat pasien.
+                Verifikasi resep dokter, siapkan obat, dan pantau persediaan obat rumah sakit.
             </p>
         </div>
 
-        <div class="rounded-xl border border-sky-100 bg-white px-5 py-4 shadow-sm">
-            <p class="text-sm text-slate-500">Total Resep</p>
-            <p class="mt-1 text-2xl font-bold text-sky-700">
-                {{ $reseps->count() }}
-            </p>
+        <a href="{{ route('farmasi.obat.index') }}"
+           class="inline-flex items-center gap-2 rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800">
+            Kelola Master Obat
+        </a>
+    </div>
+
+    {{-- Grid Kartu Metrik Farmasi --}}
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p class="text-xs font-medium text-slate-500">Total Seluruh Resep</p>
+            <p class="mt-2 text-2xl font-bold text-slate-800">{{ $stats['total_resep'] ?? $reseps->count() }}</p>
+        </div>
+
+        <div class="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm">
+            <p class="text-xs font-medium text-amber-700">Resep Menunggu</p>
+            <p class="mt-2 text-2xl font-bold text-amber-600">{{ $stats['resep_menunggu'] ?? 0 }}</p>
+        </div>
+
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm">
+            <p class="text-xs font-medium text-emerald-700">Resep Selesai</p>
+            <p class="mt-2 text-2xl font-bold text-emerald-700">{{ $stats['resep_selesai'] ?? 0 }}</p>
+        </div>
+
+        <div class="rounded-xl border border-rose-200 bg-rose-50/50 p-4 shadow-sm">
+            <p class="text-xs font-medium text-rose-700">Obat Stok Kritis</p>
+            <p class="mt-2 text-2xl font-bold text-rose-600">{{ $stats['obat_kritis'] ?? 0 }}</p>
         </div>
     </div>
 

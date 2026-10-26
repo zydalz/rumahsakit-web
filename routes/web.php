@@ -15,6 +15,7 @@ use App\Http\Controllers\JadwalDokterController;
 
 use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
+use App\Http\Controllers\DashboardController;
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
 Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
@@ -49,43 +50,8 @@ Route::middleware('guest')->group(function () {
 
 // Fitur pengguna yang sudah login dan aktif
 Route::middleware(['auth', 'active'])->group(function () {
-    Route::get('/dashboard', function () {
-    $user = auth()->user();
-
-    return match ($user->role) {
-        'pasien' => view('dashboard'),
-        'dokter' => redirect()->route('dokter.dashboard'),
-        'farmasi' => redirect()->route('farmasi.index'),
-        'kasir' => view('role-dashboard', [
-    'title' => 'Dashboard Kasir',
-    'description' => 'Kelola tagihan dan pembayaran pasien.',
-    'menus' => [
-        [
-            'label' => 'Daftar Tagihan',
-            'description' => 'Lihat dan kelola tagihan pasien.',
-            'route' => 'tagihan.index',
-        ],
-    ],
-]),
-        'admin' => view('role-dashboard', [
-            'title' => 'Dashboard Admin',
-            'description' => 'Kelola data dan administrasi rumah sakit.',
-            'menus' => [
-                [
-                    'label' => 'Data Pasien',
-                    'description' => 'Lihat dan kelola data pasien.',
-                    'route' => 'admin.pasien.index',
-                ],
-                [
-                    'label' => 'Data Obat',
-                    'description' => 'Kelola data obat rumah sakit.',
-                    'route' => 'farmasi.obat.index',
-                ],
-            ],
-        ]),
-        default => abort(403, 'Role akun belum memiliki dashboard.'),
-    };
-})->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
