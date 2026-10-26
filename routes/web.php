@@ -12,6 +12,7 @@ use App\Http\Controllers\FarmasiController;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalDokterController;
+use App\Http\Controllers\GaleriAsetController;
 
 use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
@@ -40,8 +41,15 @@ Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('do
 // Layar Monitor Display Antrean Ruang Tunggu Poli (Dapat dibuka pada layar TV / monitor ruang tunggu)
 Route::get('/antrean/display', [AntreanPoliController::class, 'display'])->name('antrean.display');
 
-// Halaman utama
-Route::view('/', 'home')->name('home');
+// Halaman utama publik
+Route::get('/', function () {
+    $bannerUtama = \App\Models\GaleriAset::where('kategori', 'banner')->where('is_active', true)->orderBy('urutan')->first();
+    $fasilitas = \App\Models\GaleriAset::where('kategori', 'fasilitas')->where('is_active', true)->orderBy('urutan')->get();
+    $galeriKegiatan = \App\Models\GaleriAset::where('kategori', 'kegiatan')->where('is_active', true)->orderBy('urutan')->get();
+    $polis = \App\Models\Poli::where('is_active', true)->with('dokter.user')->get();
+
+    return view('home', compact('bannerUtama', 'fasilitas', 'galeriKegiatan', 'polis'));
+})->name('home');
 
 // Login dan registrasi untuk pengguna yang belum login
 Route::middleware('guest')->group(function () {
@@ -76,6 +84,11 @@ Route::middleware(['auth', 'active', 'role:admin'])
     ->group(function () {
         Route::resource('pasien', PasienController::class)
             ->except(['destroy']);
+
+        Route::resource('poli', PoliController::class);
+        Route::resource('dokter', DokterController::class);
+        Route::resource('jadwal', JadwalDokterController::class);
+        Route::resource('galeri', GaleriAsetController::class);
 
         Route::get('pendaftaran', [\App\Http\Controllers\AdminPendaftaranController::class, 'index'])
             ->name('pendaftaran.index');

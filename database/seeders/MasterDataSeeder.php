@@ -298,6 +298,71 @@ class MasterDataSeeder extends Seeder
                     ]
                 );
             }
+
+            $galeriData = [
+                [
+                    'judul' => 'Pelayanan Kesehatan Modern & Prima RS Oasis Husada',
+                    'kategori' => 'banner',
+                    'file_path' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=1200&q=85',
+                    'deskripsi' => 'Tenaga dokter spesialis profesional siap memberikan pelayanan terbaik dengan fasilitas medis berstandar tinggi.',
+                    'urutan' => 1,
+                ],
+                [
+                    'judul' => 'Instalasi Gawat Darurat (UGD 24 Jam)',
+                    'kategori' => 'fasilitas',
+                    'file_path' => 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Pelayanan tanggap darurat 24 jam dengan armada ambulans siaga dan tim trauma medis bersertifikasi.',
+                    'urutan' => 1,
+                ],
+                [
+                    'judul' => 'Laboratorium Diagnostik Klinis Terpadu',
+                    'kategori' => 'fasilitas',
+                    'file_path' => 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Pemeriksaan hematologi, kimia darah, dan serologi dengan alat otomatis akurat dan cepat.',
+                    'urutan' => 2,
+                ],
+                [
+                    'judul' => 'Instalasi Farmasi & Apotek Ramah Pasien',
+                    'kategori' => 'fasilitas',
+                    'file_path' => 'https://images.unsplash.com/photo-1586015555751-63bb77f4322a?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Ketersediaan obat bermutu tinggi dengan sistem antrean obat terkomputerisasi.',
+                    'urutan' => 3,
+                ],
+                [
+                    'judul' => 'Ruang Rawat Inap & Poliklinik Nyaman',
+                    'kategori' => 'fasilitas',
+                    'file_path' => 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Lingkungan perawatan yang bersih, tenang, dan higienis demi kenyamanan pemulihan pasien.',
+                    'urutan' => 4,
+                ],
+                [
+                    'judul' => 'Pemeriksaan Kesehatan Rutin Masyarakat',
+                    'kategori' => 'kegiatan',
+                    'file_path' => 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Kegiatan bakti sosial dan skrining kesehatan berkala bagi warga sekitar rumah sakit.',
+                    'urutan' => 1,
+                ],
+                [
+                    'judul' => 'Seminar Edukasi Pencegahan Penyakit Dalam',
+                    'kategori' => 'kegiatan',
+                    'file_path' => 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=800&q=80',
+                    'deskripsi' => 'Penyuluhan pola hidup sehat dan pencegahan dini penyakit kardiovaskular bersama dokter spesialis.',
+                    'urutan' => 2,
+                ],
+            ];
+
+            foreach ($galeriData as $data) {
+                \App\Models\GaleriAset::updateOrCreate(
+                    ['judul' => $data['judul']],
+                    [
+                        'kategori' => $data['kategori'],
+                        'file_path' => $data['file_path'],
+                        'deskripsi' => $data['deskripsi'],
+                        'urutan' => $data['urutan'],
+                        'is_active' => true,
+                    ]
+                );
+            }
         });
     }
 }

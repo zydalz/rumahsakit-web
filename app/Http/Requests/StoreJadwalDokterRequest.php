@@ -11,6 +11,16 @@ class StoreJadwalDokterRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->jam_mulai && strlen($this->jam_mulai) > 5) {
+            $this->merge(['jam_mulai' => substr($this->jam_mulai, 0, 5)]);
+        }
+        if ($this->jam_selesai && strlen($this->jam_selesai) > 5) {
+            $this->merge(['jam_selesai' => substr($this->jam_selesai, 0, 5)]);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -19,7 +29,7 @@ class StoreJadwalDokterRequest extends FormRequest
             'jam_mulai' => ['required', 'date_format:H:i'],
             'jam_selesai' => ['required', 'date_format:H:i', 'after:jam_mulai'],
             'kuota' => ['required', 'integer', 'min:1'],
-            'is_active' => ['boolean'],
+            'is_active' => ['nullable', 'boolean'],
         ];
     }
 }

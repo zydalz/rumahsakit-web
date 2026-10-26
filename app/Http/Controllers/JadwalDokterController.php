@@ -10,7 +10,7 @@ class JadwalDokterController extends Controller
 {
     public function index()
     {
-        $jadwals = JadwalDokter::with('dokter.user', 'dokter.poli')->get();
+        $jadwals = JadwalDokter::with('dokter.user', 'dokter.poli')->latest()->get();
         return view('admin.jadwal.index', compact('jadwals'));
     }
 
@@ -22,7 +22,10 @@ class JadwalDokterController extends Controller
 
     public function store(StoreJadwalDokterRequest $request)
     {
-        JadwalDokter::create($request->validated());
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active', true);
+
+        JadwalDokter::create($data);
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal dokter berhasil ditambahkan.');
     }
 
@@ -34,12 +37,19 @@ class JadwalDokterController extends Controller
 
     public function update(StoreJadwalDokterRequest $request, JadwalDokter $jadwal)
     {
-        $jadwal->update($request->validated());
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
+
+        $jadwal->update($data);
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal dokter berhasil diperbarui.');
     }
 
     public function destroy(JadwalDokter $jadwal)
     {
+        if ($jadwal->pendaftarans()->exists()) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Jadwal dokter tidak dapat dihapus karena sudah memiliki riwayat pendaftaran pasien.');
+        }
+
         $jadwal->delete();
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal dokter berhasil dihapus.');
     }

@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Poli;
 use App\Http\Requests\StorePoliRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdatePoliRequest;
 
 class PoliController extends Controller
 {
     public function index()
     {
-        $polis = Poli::all();
+        $polis = Poli::withCount(['dokters', 'pendaftarans'])->latest()->get();
         return view('admin.poli.index', compact('polis'));
     }
 
@@ -21,8 +21,11 @@ class PoliController extends Controller
 
     public function store(StorePoliRequest $request)
     {
-        Poli::create($request->validated());
-        return redirect()->route('admin.poli.index')->with('success', 'Data poli berhasil ditambahkan.');
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active', true);
+
+        Poli::create($data);
+        return redirect()->route('admin.poli.index')->with('success', 'Data poliklinik berhasil ditambahkan.');
     }
 
     public function edit(Poli $poli)
@@ -30,21 +33,22 @@ class PoliController extends Controller
         return view('admin.poli.edit', compact('poli'));
     }
 
-    public function update(Request $request, Poli $poli)
+    public function update(UpdatePoliRequest $request, Poli $poli)
     {
-        $validated = $request->validate([
-            'nama_poli' => 'required|string|max:100|unique:poli,nama_poli,' . $poli->id,
-            'deskripsi' => 'nullable|string',
-            'is_active' => 'boolean',
-        ]);
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
 
-        $poli->update($validated);
-        return redirect()->route('admin.poli.index')->with('success', 'Data poli berhasil diperbarui.');
+        $poli->update($data);
+        return redirect()->route('admin.poli.index')->with('success', 'Data poliklinik berhasil diperbarui.');
     }
 
     public function destroy(Poli $poli)
     {
+        if ($poli->pendaftarans()->exists()) {
+            return redirect()->route('admin.poli.index')->with('error', 'Poliklinik tidak dapat dihapus karena sudah memiliki data riwayat pendaftaran pasien.');
+        }
+
         $poli->delete();
-        return redirect()->route('admin.poli.index')->with('success', 'Data poli berhasil dihapus.');
+        return redirect()->route('admin.poli.index')->with('success', 'Data poliklinik berhasil dihapus.');
     }
 }

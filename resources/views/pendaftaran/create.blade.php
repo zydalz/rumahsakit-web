@@ -75,9 +75,19 @@
                     @endforeach
                 </select>
 
-                <p id="jadwal-kosong-msg" class="mt-2 text-sm text-amber-700 hidden">
-                    Belum ada dokter atau jadwal aktif pada poli ini. Silakan pilih poli lain atau hubungi informasi RS.
-                </p>
+                <div id="jadwal-kosong-msg" class="mt-3 rounded-xl border border-amber-200 bg-amber-50/90 p-4 text-amber-900 shadow-sm hidden">
+                    <div class="flex items-start gap-3">
+                        <svg class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div>
+                            <p class="font-bold text-sm">Poli ini belum memiliki jadwal praktik aktif</p>
+                            <p class="mt-0.5 text-xs text-amber-700">
+                                Saat ini belum ada dokter yang bertugas atau jadwal praktik belum dibuka pada poliklinik yang Anda pilih. Silakan pilih poliklinik lain atau hubungi pusat informasi RS Oasis Husada.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
                 @if ($jadwals->isEmpty())
                     <p class="mt-2 text-sm text-amber-700">
@@ -167,6 +177,7 @@
                 </a>
 
                 <button type="submit"
+                        id="btn-submit-pendaftaran"
                         @disabled($polis->isEmpty() || $jadwals->isEmpty())
                         class="inline-flex items-center justify-center rounded-lg bg-oasis-blue px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
                     Daftar Kunjungan
@@ -210,6 +221,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const jadwalsEmptyGlobal = {{ $jadwals->isEmpty() ? 'true' : 'false' }};
     const poliSelect = document.getElementById('poli_id');
     const jadwalSelect = document.getElementById('jadwal_dokter_id');
     const penjaminSelect = document.getElementById('jenis_penjamin');
@@ -239,10 +251,13 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        const submitBtn = document.getElementById('btn-submit-pendaftaran');
         if (poliId !== '' && visibleCount === 0) {
             jadwalKosongMsg.classList.remove('hidden');
+            if (submitBtn) submitBtn.disabled = true;
         } else {
             jadwalKosongMsg.classList.add('hidden');
+            if (submitBtn && !jadwalsEmptyGlobal) submitBtn.disabled = false;
         }
     }
 

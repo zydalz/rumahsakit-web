@@ -65,13 +65,46 @@
                 </div>
 
                 <div>
-                    <dt class="text-sm text-slate-500">Nomor Telepon</dt>
+                    <dt class="text-sm text-slate-500">Golongan Darah</dt>
+                    <dd class="mt-1 font-semibold text-slate-800">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+                            {{ $pasien->golongan_darah ?: 'Tidak Tahu' }}
+                        </span>
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-slate-500">Riwayat Alergi</dt>
+                    <dd class="mt-1 font-medium text-slate-800">
+                        @if($pasien->riwayat_alergi)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">
+                                <svg class="w-3.5 h-3.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                {{ $pasien->riwayat_alergi }}
+                            </span>
+                        @else
+                            <span class="text-slate-400 italic">Tidak ada alergi tercatat</span>
+                        @endif
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-slate-500">Kontak Darurat Keluarga</dt>
+                    <dd class="mt-1 font-medium text-slate-800">
+                        {{ $pasien->kontak_darurat ?? '-' }}
+                        @if($pasien->hubungan_darurat)
+                            <span class="text-xs text-slate-500 font-normal">({{ $pasien->hubungan_darurat }})</span>
+                        @endif
+                    </dd>
+                </div>
+
+                <div>
+                    <dt class="text-sm text-slate-500">Nomor Telepon Pasien</dt>
                     <dd class="mt-1 font-medium text-slate-800">
                         {{ $pasien->no_telepon ?? '-' }}
                     </dd>
                 </div>
 
-                <div>
+                <div class="sm:col-span-2">
                     <dt class="text-sm text-slate-500">Tanggal Data Dibuat</dt>
                     <dd class="mt-1 font-medium text-slate-800">
                         {{ $pasien->created_at?->format('d-m-Y H:i') ?? '-' }}

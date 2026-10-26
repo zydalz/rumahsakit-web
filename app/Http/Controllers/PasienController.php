@@ -48,8 +48,12 @@ public function index(Request $request)
             'nik' => ['nullable', 'digits:16', 'unique:pasien,nik'],
             'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
             'jenis_kelamin' => ['nullable', Rule::in(['L', 'P'])],
+            'golongan_darah' => ['nullable', 'string', 'max:5'],
+            'riwayat_alergi' => ['nullable', 'string', 'max:1000'],
             'alamat' => ['nullable', 'string'],
             'no_telepon' => ['nullable', 'string', 'max:20'],
+            'kontak_darurat' => ['nullable', 'string', 'max:25'],
+            'hubungan_darurat' => ['nullable', 'string', 'max:50'],
         ]);
 
         Pasien::create($validated);
@@ -80,8 +84,12 @@ public function index(Request $request)
             ],
             'tanggal_lahir' => ['nullable', 'date', 'before_or_equal:today'],
             'jenis_kelamin' => ['nullable', Rule::in(['L', 'P'])],
+            'golongan_darah' => ['nullable', 'string', 'max:5'],
+            'riwayat_alergi' => ['nullable', 'string', 'max:1000'],
             'alamat' => ['nullable', 'string'],
             'no_telepon' => ['nullable', 'string', 'max:20'],
+            'kontak_darurat' => ['nullable', 'string', 'max:25'],
+            'hubungan_darurat' => ['nullable', 'string', 'max:50'],
         ]);
 
         $pasien->update($validated);

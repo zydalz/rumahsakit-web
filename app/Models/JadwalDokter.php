@@ -14,4 +14,9 @@ class JadwalDokter extends Model
     {
         return $this->belongsTo(Dokter::class, 'dokter_id');
     }
+
+    public function pendaftarans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Pendaftaran::class, 'jadwal_dokter_id');
+    }
 }

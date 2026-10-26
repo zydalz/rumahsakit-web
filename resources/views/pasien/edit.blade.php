@@ -140,8 +140,82 @@
                 </div>
 
                 <div>
+                    <label for="golongan_darah" class="mb-2 block text-sm font-medium text-slate-700">
+                        Golongan Darah
+                    </label>
+                    <select
+                        id="golongan_darah"
+                        name="golongan_darah"
+                        class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-oasis-blue/20"
+                    >
+                        <option value="">Pilih golongan darah</option>
+                        @foreach(['A', 'B', 'AB', 'O', 'Tidak Tahu'] as $goldar)
+                            <option value="{{ $goldar }}" @selected(old('golongan_darah', $pasien->golongan_darah) === $goldar)>{{ $goldar }}</option>
+                        @endforeach
+                    </select>
+                    @error('golongan_darah')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="riwayat_alergi" class="mb-2 block text-sm font-medium text-slate-700">
+                        Riwayat Alergi (Obat / Makanan)
+                    </label>
+                    <input
+                        type="text"
+                        id="riwayat_alergi"
+                        name="riwayat_alergi"
+                        value="{{ old('riwayat_alergi', $pasien->riwayat_alergi) }}"
+                        maxlength="1000"
+                        class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-oasis-blue/20"
+                        placeholder="Contoh: Alergi Amoxicillin, Paracetamol (opsional)"
+                    >
+                    @error('riwayat_alergi')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="kontak_darurat" class="mb-2 block text-sm font-medium text-slate-700">
+                            Nomor Kontak Darurat
+                        </label>
+                        <input
+                            type="tel"
+                            id="kontak_darurat"
+                            name="kontak_darurat"
+                            value="{{ old('kontak_darurat', $pasien->kontak_darurat) }}"
+                            maxlength="25"
+                            class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-oasis-blue/20"
+                            placeholder="Contoh: 081299887766"
+                        >
+                        @error('kontak_darurat')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="hubungan_darurat" class="mb-2 block text-sm font-medium text-slate-700">
+                            Hubungan Kontak Darurat
+                        </label>
+                        <input
+                            type="text"
+                            id="hubungan_darurat"
+                            name="hubungan_darurat"
+                            value="{{ old('hubungan_darurat', $pasien->hubungan_darurat) }}"
+                            maxlength="50"
+                            class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-oasis-blue/20"
+                            placeholder="Contoh: Orang Tua, Suami, Istri"
+                        >
+                        @error('hubungan_darurat')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div>
                     <label for="no_telepon" class="mb-2 block text-sm font-medium text-slate-700">
-                        Nomor Telepon
+                        Nomor Telepon Pasien
                     </label>
                     <input
                         type="tel"

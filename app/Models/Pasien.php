@@ -17,8 +17,12 @@ class Pasien extends Model
         'nik',
         'tanggal_lahir',
         'jenis_kelamin',
+        'golongan_darah',
+        'riwayat_alergi',
         'alamat',
         'no_telepon',
+        'kontak_darurat',
+        'hubungan_darurat',
     ];
 
     protected function casts(): array
