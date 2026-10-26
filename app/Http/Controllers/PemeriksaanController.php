@@ -8,6 +8,8 @@ use App\Models\Obat;
 use App\Models\Pemeriksaan;
 use App\Models\Pendaftaran;
 use App\Models\Resep;
+use App\Models\Tagihan;
+use App\Models\DetailTagihan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -100,6 +102,17 @@ class PemeriksaanController extends Controller
             ]);
 
             $daftarObat = $data['obat'] ?? [];
+            $biayaPemeriksaan = 25000;
+            $totalBiayaObat = 0;
+            $detailTagihanItems = [
+                [
+                    'jenis_item' => 'layanan',
+                    'deskripsi' => 'Jasa Konsultasi & Pemeriksaan ' . ($pendaftaran->poli->nama_poli ?? 'Dokter'),
+                    'jumlah' => 1,
+                    'harga_satuan' => $biayaPemeriksaan,
+                    'subtotal' => $biayaPemeriksaan,
+                ],
+            ];
 
             if (!empty($daftarObat)) {
                 $resep = Resep::create([
@@ -107,7 +120,7 @@ class PemeriksaanController extends Controller
                     'kode_resep' => 'RSP-' . now()->format('YmdHis')
                         . '-' . Str::upper(Str::random(4)),
                     'catatan_dokter' => $data['catatan'] ?? null,
-                    'status' => 'menunggu',
+                    'status' => 'menunggu_pembayaran',
                 ]);
 
                 foreach ($daftarObat as $item) {
@@ -128,6 +141,34 @@ class PemeriksaanController extends Controller
                         'dosis' => $item['dosis'],
                         'instruksi_khusus' => $item['instruksi_khusus'] ?? null,
                     ]);
+
+                    $subtotalItem = (float) $obat->harga * (int) $item['jumlah'];
+                    $totalBiayaObat += $subtotalItem;
+
+                    $detailTagihanItems[] = [
+                        'jenis_item' => 'obat',
+                        'deskripsi' => 'Obat: ' . $obat->nama_obat . ' (' . (int) $item['jumlah'] . ' ' . ($obat->satuan ?? 'butir') . ')',
+                        'jumlah' => (int) $item['jumlah'],
+                        'harga_satuan' => (float) $obat->harga,
+                        'subtotal' => $subtotalItem,
+                    ];
+                }
+            }
+
+            // Buat tagihan otomatis jika belum pernah dibuat untuk pendaftaran ini
+            if (!Tagihan::where('pendaftaran_id', $pendaftaran->id)->exists()) {
+                $totalTagihan = $biayaPemeriksaan + $totalBiayaObat;
+                $nomorTagihan = 'TAG-' . now()->format('YmdHis') . '-' . str_pad((string) $pendaftaran->id, 4, '0', STR_PAD_LEFT);
+
+                $tagihan = Tagihan::create([
+                    'nomor_tagihan' => $nomorTagihan,
+                    'pendaftaran_id' => $pendaftaran->id,
+                    'total_tagihan' => $totalTagihan,
+                    'status' => 'belum_lunas',
+                ]);
+
+                foreach ($detailTagihanItems as $dItem) {
+                    $tagihan->detailTagihan()->create($dItem);
                 }
             }
 

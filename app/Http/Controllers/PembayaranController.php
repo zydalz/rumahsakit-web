@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
+use App\Models\Resep;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -82,12 +83,17 @@ class PembayaranController extends Controller
             ]);
 
             $totalBayar += $jumlahBayar;
+            $isLunas = $totalBayar >= (float) $tagihan->total_tagihan;
 
             $tagihan->update([
-                'status' => $totalBayar >= (float) $tagihan->total_tagihan
-                    ? 'lunas'
-                    : 'belum_lunas',
+                'status' => $isLunas ? 'lunas' : 'belum_lunas',
             ]);
+
+            if ($isLunas && $tagihan->pendaftaran_id) {
+                Resep::where('pendaftaran_id', $tagihan->pendaftaran_id)
+                    ->whereIn('status', ['menunggu', 'menunggu_pembayaran'])
+                    ->update(['status' => 'siap_diserahkan']);
+            }
         });
 
         return redirect()

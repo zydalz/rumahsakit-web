@@ -75,6 +75,10 @@
                     @endforeach
                 </select>
 
+                <p id="jadwal-kosong-msg" class="mt-2 text-sm text-amber-700 hidden">
+                    Belum ada dokter atau jadwal aktif pada poli ini. Silakan pilih poli lain atau hubungi informasi RS.
+                </p>
+
                 @if ($jadwals->isEmpty())
                     <p class="mt-2 text-sm text-amber-700">
                         Belum ada jadwal dokter aktif. Silakan hubungi administrator rumah sakit.
@@ -93,6 +97,26 @@
                        value="{{ old('tanggal_kunjungan') }}"
                        required
                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+
+            <div>
+                <label for="jam_estimasi" class="mb-2 block text-sm font-medium text-slate-700">
+                    Perkiraan jam kedatangan <span class="text-red-500">*</span>
+                </label>
+
+                <select id="jam_estimasi" name="jam_estimasi" required
+                        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 focus:border-oasis-blue focus:outline-none focus:ring-2 focus:ring-blue-100">
+                    <option value="">Pilih rentang jam kedatangan</option>
+                    <option value="08.00 - 09.00 WIB" @selected(old('jam_estimasi') === '08.00 - 09.00 WIB')>Pagi (08.00 - 09.00 WIB)</option>
+                    <option value="09.00 - 10.00 WIB" @selected(old('jam_estimasi') === '09.00 - 10.00 WIB')>Pagi (09.00 - 10.00 WIB)</option>
+                    <option value="10.00 - 11.00 WIB" @selected(old('jam_estimasi') === '10.00 - 11.00 WIB')>Siang (10.00 - 11.00 WIB)</option>
+                    <option value="11.00 - 12.00 WIB" @selected(old('jam_estimasi') === '11.00 - 12.00 WIB')>Siang (11.00 - 12.00 WIB)</option>
+                    <option value="13.00 - 14.00 WIB" @selected(old('jam_estimasi') === '13.00 - 14.00 WIB')>Siang (13.00 - 14.00 WIB)</option>
+                    <option value="14.00 - 15.00 WIB" @selected(old('jam_estimasi') === '14.00 - 15.00 WIB')>Sore (14.00 - 15.00 WIB)</option>
+                </select>
+                <p class="mt-1 text-xs text-slate-500">
+                    Rentang waktu ini membantu pengaturan antrean agar Anda tidak menunggu terlalu lama di ruang tunggu.
+                </p>
             </div>
 
             <div>
@@ -194,6 +218,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function filterJadwal() {
         const poliId = poliSelect.value;
+        const jadwalKosongMsg = document.getElementById('jadwal-kosong-msg');
+        let visibleCount = 0;
 
         Array.from(jadwalSelect.options).forEach(function (option) {
             if (!option.value) {
@@ -201,12 +227,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            option.hidden = poliId !== '' && option.dataset.poli !== poliId;
+            const match = poliId !== '' && option.dataset.poli === poliId;
+            option.hidden = poliId !== '' && !match;
+
+            if (match) {
+                visibleCount++;
+            }
 
             if (option.hidden && option.selected) {
                 jadwalSelect.value = '';
             }
         });
+
+        if (poliId !== '' && visibleCount === 0) {
+            jadwalKosongMsg.classList.remove('hidden');
+        } else {
+            jadwalKosongMsg.classList.add('hidden');
+        }
     }
 
     function updateNomorPeserta() {

@@ -27,7 +27,9 @@
         ],
         'admin' => [
             ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Verifikasi Pasien', 'route' => 'admin.pendaftaran.index'],
             ['label' => 'Data Pasien', 'route' => 'admin.pasien.index'],
+            ['label' => 'Resep & Farmasi', 'route' => 'farmasi.index'],
             ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
         ],
         default => [],

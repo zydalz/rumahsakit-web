@@ -66,16 +66,39 @@
                                     {{ $pendaftaran->kode_pendaftaran }}
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
-                                    {{ $pendaftaran->tanggal_kunjungan->format('d-m-Y') }}
+                                    <p class="font-medium text-slate-800">{{ $pendaftaran->tanggal_kunjungan->format('d-m-Y') }}</p>
+                                    <p class="text-xs text-sky-700 font-semibold">{{ $pendaftaran->jam_estimasi ?? '-' }}</p>
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
                                     {{ $pendaftaran->poli->nama_poli ?? '-' }}
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
-                                    {{ $pendaftaran->nomor_antrean }}
+                                    <span class="inline-flex items-center rounded-md bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700">
+                                        #{{ $pendaftaran->nomor_antrean }}
+                                    </span>
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
-                                    {{ ucfirst($pendaftaran->status) }}
+                                <td class="whitespace-nowrap px-5 py-4 text-sm">
+                                    @if(in_array($pendaftaran->status, ['menunggu', 'menunggu_konfirmasi']))
+                                        <span class="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                                            Menunggu Konfirmasi
+                                        </span>
+                                    @elseif($pendaftaran->status === 'dikonfirmasi')
+                                        <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                                            Dikonfirmasi
+                                        </span>
+                                    @elseif($pendaftaran->status === 'sedang_diperiksa')
+                                        <span class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">
+                                            Sedang Diperiksa
+                                        </span>
+                                    @elseif($pendaftaran->status === 'selesai')
+                                        <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
+                                            Selesai
+                                        </span>
+                                    @elseif($pendaftaran->status === 'dibatalkan')
+                                        <span class="inline-flex rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800">
+                                            Dibatalkan
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="whitespace-nowrap px-5 py-4 text-sm">
                                     <a href="{{ route('pasien.pendaftaran.show', $pendaftaran) }}"

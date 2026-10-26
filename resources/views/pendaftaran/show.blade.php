@@ -91,18 +91,45 @@
             </div>
 
             <div>
-                <p class="text-sm text-slate-500">Status Verifikasi</p>
-                <p class="mt-1 font-semibold text-slate-800">
-                    {{ ucfirst($pendaftaran->status_verifikasi) }}
+                <p class="text-sm text-slate-500">Perkiraan Jam Kedatangan</p>
+                <p class="mt-1 font-semibold text-sky-700">
+                    {{ $pendaftaran->jam_estimasi ?? 'Belum ditentukan' }}
                 </p>
             </div>
 
             <div>
-                <p class="text-sm text-slate-500">Status Pendaftaran</p>
-                <p class="mt-1 font-semibold text-slate-800">
-                    {{ ucfirst($pendaftaran->status) }}
-                </p>
+                <p class="text-sm text-slate-500">Status Konfirmasi</p>
+                <div class="mt-1">
+                    @if(in_array($pendaftaran->status, ['menunggu', 'menunggu_konfirmasi']))
+                        <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                            Menunggu Konfirmasi Admin
+                        </span>
+                    @elseif($pendaftaran->status === 'dikonfirmasi')
+                        <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                            Dikonfirmasi &bull; Silakan Hadir
+                        </span>
+                    @elseif($pendaftaran->status === 'sedang_diperiksa')
+                        <span class="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
+                            Sedang Diperiksa di Poli
+                        </span>
+                    @elseif($pendaftaran->status === 'selesai')
+                        <span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                            Pemeriksaan Selesai
+                        </span>
+                    @elseif($pendaftaran->status === 'dibatalkan')
+                        <span class="inline-flex rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-800">
+                            Kunjungan Dibatalkan
+                        </span>
+                    @endif
+                </div>
             </div>
+
+            @if($pendaftaran->catatan_admin)
+                <div class="sm:col-span-2 rounded-xl bg-slate-50 border border-slate-200 p-4">
+                    <p class="text-xs font-semibold text-slate-500 uppercase">Catatan Petugas Admin</p>
+                    <p class="mt-1 text-sm text-slate-700">{{ $pendaftaran->catatan_admin }}</p>
+                </div>
+            @endif
 
             <div class="sm:col-span-2">
                 <p class="text-sm text-slate-500">Keluhan Awal</p>

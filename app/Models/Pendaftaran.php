@@ -17,12 +17,14 @@ class Pendaftaran extends Model
         'poli_id',
         'jadwal_dokter_id',
         'tanggal_kunjungan',
+        'jam_estimasi',
         'nomor_antrean',
         'jenis_penjamin',
         'nomor_peserta',
         'status_verifikasi',
         'keluhan_awal',
         'status',
+        'catatan_admin',
         'created_by',
     ];
 
@@ -66,10 +68,14 @@ public function tagihan(): \Illuminate\Database\Eloquent\Relations\HasOne
     return $this->hasOne(\App\Models\Tagihan::class, 'pendaftaran_id');
 }
 
+public function resep(): \Illuminate\Database\Eloquent\Relations\HasOne
+{
+    return $this->hasOne(Resep::class, 'pendaftaran_id');
+}
+
 public function reseps(): HasMany
 {
     return $this->hasMany(Resep::class, 'pendaftaran_id');
 }
-
 
 }

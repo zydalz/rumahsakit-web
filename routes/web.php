@@ -64,6 +64,15 @@ Route::middleware(['auth', 'active', 'role:admin'])
     ->group(function () {
         Route::resource('pasien', PasienController::class)
             ->except(['destroy']);
+
+        Route::get('pendaftaran', [\App\Http\Controllers\AdminPendaftaranController::class, 'index'])
+            ->name('pendaftaran.index');
+
+        Route::post('pendaftaran/{pendaftaran}/konfirmasi', [\App\Http\Controllers\AdminPendaftaranController::class, 'konfirmasi'])
+            ->name('pendaftaran.konfirmasi');
+
+        Route::post('pendaftaran/{pendaftaran}/batalkan', [\App\Http\Controllers\AdminPendaftaranController::class, 'batalkan'])
+            ->name('pendaftaran.batalkan');
     });
 
 // Fitur obat untuk admin dan farmasi
@@ -96,7 +105,7 @@ Route::middleware(['auth', 'active', 'role:pasien'])
     });
 
 // Fitur Farmasi & Resep (Dipisah di luar grup pasien)
-Route::middleware(['auth', 'active'])->group(function () {
+Route::middleware(['auth', 'active', 'role:admin,farmasi'])->group(function () {
     Route::get('/farmasi', [FarmasiController::class, 'index'])->name('farmasi.index');
     Route::put('/farmasi/{id}/status', [FarmasiController::class, 'updateStatus'])->name('farmasi.updateStatus');
 });

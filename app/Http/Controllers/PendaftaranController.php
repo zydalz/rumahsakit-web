@@ -100,6 +100,11 @@ class PendaftaranController extends Controller
                 'date',
                 'after_or_equal:today',
             ],
+            'jam_estimasi' => [
+                'required',
+                'string',
+                'max:30',
+            ],
             'jenis_penjamin' => [
                 'required',
                 Rule::in(['Umum', 'BPJS', 'Asuransi']),
@@ -120,6 +125,7 @@ class PendaftaranController extends Controller
             'jadwal_dokter_id.required' => 'Silakan pilih jadwal dokter.',
             'tanggal_kunjungan.after_or_equal' =>
                 'Tanggal kunjungan tidak boleh sebelum hari ini.',
+            'jam_estimasi.required' => 'Silakan pilih perkiraan jam kedatangan.',
             'jenis_penjamin.in' => 'Jenis penjamin tidak valid.',
             'nomor_peserta.required_unless' =>
                 'Nomor peserta wajib diisi untuk BPJS atau Asuransi.',
@@ -207,14 +213,15 @@ class PendaftaranController extends Controller
                     'poli_id' => $validated['poli_id'],
                     'jadwal_dokter_id' => $jadwal->id,
                     'tanggal_kunjungan' => $tanggal->toDateString(),
+                    'jam_estimasi' => $validated['jam_estimasi'],
                     'nomor_antrean' => $nomorAntrean,
                     'jenis_penjamin' => $validated['jenis_penjamin'],
                     'nomor_peserta' => $validated['jenis_penjamin'] === 'Umum'
                         ? null
                         : $validated['nomor_peserta'],
-                    'status_verifikasi' => 'menunggu',
+                    'status_verifikasi' => 'menunggu_konfirmasi',
                     'keluhan_awal' => $validated['keluhan_awal'] ?? null,
-                    'status' => 'menunggu',
+                    'status' => 'menunggu_konfirmasi',
                     'created_by' => auth()->id(),
                 ]);
             }, 3);
@@ -230,7 +237,7 @@ class PendaftaranController extends Controller
 
         return redirect()
             ->route('pasien.pendaftaran.show', $pendaftaran)
-            ->with('success', 'Pendaftaran berhasil dibuat. Nomor antrean Anda: ' . $pendaftaran->nomor_antrean);
+            ->with('success', 'Pendaftaran berhasil dikirim. Menunggu konfirmasi ketersediaan dokter oleh admin. Nomor antrean sementara: #' . $pendaftaran->nomor_antrean);
 
     }
 
