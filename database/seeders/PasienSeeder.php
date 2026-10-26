@@ -13,33 +13,33 @@ class PasienSeeder extends Seeder
     {
         $pasienData = [
             [
-                'email' => 'pasien.budi@oasishusada.test',
+                'email' => 'pasien.budi@gmail.com',
                 'nama' => 'Budi Santoso',
                 'nomor_rm' => 'RM-OAS-0001',
-                'nik' => '0000000000000001',
+                'nik' => '3171011205980001',
                 'tanggal_lahir' => '1998-05-12',
                 'jenis_kelamin' => 'L',
-                'alamat' => 'Alamat contoh, Jakarta',
+                'alamat' => 'Jl. Salemba Raya No. 12, Senen, Jakarta Pusat',
                 'no_telepon' => '081300000001',
             ],
             [
-                'email' => 'pasien.siti@oasishusada.test',
+                'email' => 'pasien.siti@gmail.com',
                 'nama' => 'Siti Aminah',
                 'nomor_rm' => 'RM-OAS-0002',
-                'nik' => '0000000000000002',
+                'nik' => '3174032109950002',
                 'tanggal_lahir' => '1995-09-21',
                 'jenis_kelamin' => 'P',
-                'alamat' => 'Alamat contoh, Jakarta',
+                'alamat' => 'Jl. Tebet Barat Dalam No. 45, Jakarta Selatan',
                 'no_telepon' => '081300000002',
             ],
             [
-                'email' => 'pasien.rina@oasishusada.test',
+                'email' => 'pasien.rina@gmail.com',
                 'nama' => 'Rina Lestari',
                 'nomor_rm' => 'RM-OAS-0003',
-                'nik' => '0000000000000003',
+                'nik' => '3175021002010003',
                 'tanggal_lahir' => '2001-02-10',
                 'jenis_kelamin' => 'P',
-                'alamat' => 'Alamat contoh, Jakarta',
+                'alamat' => 'Jl. Rawamangun Muka No. 8, Jakarta Timur',
                 'no_telepon' => '081300000003',
             ],
         ];
@@ -52,11 +52,11 @@ class PasienSeeder extends Seeder
                     continue;
                 }
 
-                Pasien::firstOrCreate(
-                    ['user_id' => $user->id],
+                Pasien::updateOrCreate(
+                    ['nomor_rm' => $data['nomor_rm']],
                     [
+                        'user_id' => $user->id,
                         'nama' => $data['nama'],
-                        'nomor_rm' => $data['nomor_rm'],
                         'nik' => $data['nik'],
                         'tanggal_lahir' => $data['tanggal_lahir'],
                         'jenis_kelamin' => $data['jenis_kelamin'],

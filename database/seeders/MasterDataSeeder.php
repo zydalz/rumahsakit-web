@@ -18,24 +18,40 @@ class MasterDataSeeder extends Seeder
             $poliData = [
                 [
                     'nama_poli' => 'Poli Umum',
-                    'deskripsi' => 'Pelayanan kesehatan umum.',
+                    'deskripsi' => 'Pelayanan kesehatan umum, pemeriksaan awal, dan penanganan keluhan medis dasar.',
                 ],
                 [
                     'nama_poli' => 'Poli Gigi',
-                    'deskripsi' => 'Pemeriksaan dan perawatan gigi.',
+                    'deskripsi' => 'Pemeriksaan, penambalan, pembersihan karang, dan perawatan kesehatan gigi serta mulut.',
                 ],
                 [
                     'nama_poli' => 'Poli Anak',
-                    'deskripsi' => 'Pelayanan kesehatan anak.',
+                    'deskripsi' => 'Pelayanan kesehatan bayi dan anak, imunisasi, tumbuh kembang, dan infeksi anak.',
                 ],
                 [
                     'nama_poli' => 'Poli Penyakit Dalam',
-                    'deskripsi' => 'Pelayanan penyakit dalam.',
+                    'deskripsi' => 'Diagnosis dan penanganan medis non-bedah untuk penyakit organ dalam dewasa.',
+                ],
+                [
+                    'nama_poli' => 'Poli Kandungan & Kebidanan',
+                    'deskripsi' => 'Pemeriksaan kehamilan, USG kandungan, program hamil, dan kesehatan reproduksi wanita.',
+                ],
+                [
+                    'nama_poli' => 'Poli Mata',
+                    'deskripsi' => 'Pemeriksaan refraksi, gangguan penglihatan, katarak, dan kesehatan bola mata.',
+                ],
+                [
+                    'nama_poli' => 'Poli Bedah',
+                    'deskripsi' => 'Konsultasi tindakan bedah minor dan mayor, perawatan luka pascaoperasi, dan trauma.',
+                ],
+                [
+                    'nama_poli' => 'Poli THT',
+                    'deskripsi' => 'Pemeriksaan dan terapi gangguan telinga, hidung, tenggorokan, kepala, dan leher.',
                 ],
             ];
 
             foreach ($poliData as $data) {
-                Poli::firstOrCreate(
+                Poli::updateOrCreate(
                     ['nama_poli' => $data['nama_poli']],
                     [
                         'deskripsi' => $data['deskripsi'],
@@ -45,17 +61,85 @@ class MasterDataSeeder extends Seeder
             }
 
             $dokterData = [
+                // Poli Umum
                 [
-                    'email' => 'dokter.andi@oasishusada.test',
+                    'email' => 'dokter.andi@gmail.com',
                     'poli' => 'Poli Umum',
-                    'sip' => 'CONTOH-SIP-001',
+                    'sip' => 'SIP-001/DU/2022',
                     'telepon' => '081200000001',
                 ],
                 [
-                    'email' => 'dokter.siti@oasishusada.test',
-                    'poli' => 'Poli Gigi',
-                    'sip' => 'CONTOH-SIP-002',
+                    'email' => 'dokter.dina@gmail.com',
+                    'poli' => 'Poli Umum',
+                    'sip' => 'SIP-002/DU/2023',
                     'telepon' => '081200000002',
+                ],
+                // Poli Gigi
+                [
+                    'email' => 'dokter.siti@gmail.com',
+                    'poli' => 'Poli Gigi',
+                    'sip' => 'SIP-003/DG/2021',
+                    'telepon' => '081200000003',
+                ],
+                [
+                    'email' => 'dokter.fajar@gmail.com',
+                    'poli' => 'Poli Gigi',
+                    'sip' => 'SIP-004/DG/2022',
+                    'telepon' => '081200000004',
+                ],
+                // Poli Anak
+                [
+                    'email' => 'dokter.bambang@gmail.com',
+                    'poli' => 'Poli Anak',
+                    'sip' => 'SIP-005/SPA/2020',
+                    'telepon' => '081200000005',
+                ],
+                [
+                    'email' => 'dokter.nurul@gmail.com',
+                    'poli' => 'Poli Anak',
+                    'sip' => 'SIP-006/SPA/2022',
+                    'telepon' => '081200000006',
+                ],
+                // Poli Penyakit Dalam
+                [
+                    'email' => 'dokter.dewi@gmail.com',
+                    'poli' => 'Poli Penyakit Dalam',
+                    'sip' => 'SIP-007/SPPD/2019',
+                    'telepon' => '081200000007',
+                ],
+                [
+                    'email' => 'dokter.hendra@gmail.com',
+                    'poli' => 'Poli Penyakit Dalam',
+                    'sip' => 'SIP-008/SPPD/2021',
+                    'telepon' => '081200000008',
+                ],
+                // Poli Kandungan & Kebidanan
+                [
+                    'email' => 'dokter.farhan@gmail.com',
+                    'poli' => 'Poli Kandungan & Kebidanan',
+                    'sip' => 'SIP-009/SPOG/2020',
+                    'telepon' => '081200000009',
+                ],
+                // Poli Mata
+                [
+                    'email' => 'dokter.maya@gmail.com',
+                    'poli' => 'Poli Mata',
+                    'sip' => 'SIP-010/SPM/2021',
+                    'telepon' => '081200000010',
+                ],
+                // Poli Bedah
+                [
+                    'email' => 'dokter.rizki@gmail.com',
+                    'poli' => 'Poli Bedah',
+                    'sip' => 'SIP-011/SPB/2018',
+                    'telepon' => '081200000011',
+                ],
+                // Poli THT
+                [
+                    'email' => 'dokter.anita@gmail.com',
+                    'poli' => 'Poli THT',
+                    'sip' => 'SIP-012/SPTHT/2022',
+                    'telepon' => '081200000012',
                 ],
             ];
 
@@ -67,7 +151,7 @@ class MasterDataSeeder extends Seeder
                     continue;
                 }
 
-                Dokter::firstOrCreate(
+                Dokter::updateOrCreate(
                     ['user_id' => $user->id],
                     [
                         'poli_id' => $poli->id,
@@ -79,34 +163,58 @@ class MasterDataSeeder extends Seeder
             }
 
             $jadwalData = [
-                [
-                    'email' => 'dokter.andi@oasishusada.test',
-                    'hari' => 'Senin',
-                    'mulai' => '08:00:00',
-                    'selesai' => '12:00:00',
-                    'kuota' => 20,
-                ],
-                [
-                    'email' => 'dokter.andi@oasishusada.test',
-                    'hari' => 'Rabu',
-                    'mulai' => '08:00:00',
-                    'selesai' => '12:00:00',
-                    'kuota' => 20,
-                ],
-                [
-                    'email' => 'dokter.siti@oasishusada.test',
-                    'hari' => 'Selasa',
-                    'mulai' => '09:00:00',
-                    'selesai' => '13:00:00',
-                    'kuota' => 15,
-                ],
-                [
-                    'email' => 'dokter.siti@oasishusada.test',
-                    'hari' => 'Kamis',
-                    'mulai' => '09:00:00',
-                    'selesai' => '13:00:00',
-                    'kuota' => 15,
-                ],
+                // Dokter Andi (Poli Umum)
+                ['email' => 'dokter.andi@gmail.com', 'hari' => 'Senin', 'mulai' => '08:00:00', 'selesai' => '12:00:00', 'kuota' => 20],
+                ['email' => 'dokter.andi@gmail.com', 'hari' => 'Rabu', 'mulai' => '08:00:00', 'selesai' => '12:00:00', 'kuota' => 20],
+                ['email' => 'dokter.andi@gmail.com', 'hari' => 'Jumat', 'mulai' => '08:00:00', 'selesai' => '11:30:00', 'kuota' => 15],
+                // Dokter Dina (Poli Umum)
+                ['email' => 'dokter.dina@gmail.com', 'hari' => 'Selasa', 'mulai' => '13:00:00', 'selesai' => '17:00:00', 'kuota' => 20],
+                ['email' => 'dokter.dina@gmail.com', 'hari' => 'Kamis', 'mulai' => '13:00:00', 'selesai' => '17:00:00', 'kuota' => 20],
+                ['email' => 'dokter.dina@gmail.com', 'hari' => 'Sabtu', 'mulai' => '08:00:00', 'selesai' => '12:00:00', 'kuota' => 15],
+
+                // Dokter Siti (Poli Gigi)
+                ['email' => 'dokter.siti@gmail.com', 'hari' => 'Selasa', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+                ['email' => 'dokter.siti@gmail.com', 'hari' => 'Kamis', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+                ['email' => 'dokter.siti@gmail.com', 'hari' => 'Sabtu', 'mulai' => '09:00:00', 'selesai' => '12:00:00', 'kuota' => 12],
+                // Dokter Fajar (Poli Gigi)
+                ['email' => 'dokter.fajar@gmail.com', 'hari' => 'Senin', 'mulai' => '13:00:00', 'selesai' => '17:00:00', 'kuota' => 15],
+                ['email' => 'dokter.fajar@gmail.com', 'hari' => 'Rabu', 'mulai' => '13:00:00', 'selesai' => '17:00:00', 'kuota' => 15],
+                ['email' => 'dokter.fajar@gmail.com', 'hari' => 'Jumat', 'mulai' => '13:30:00', 'selesai' => '17:00:00', 'kuota' => 12],
+
+                // Dokter Bambang (Poli Anak)
+                ['email' => 'dokter.bambang@gmail.com', 'hari' => 'Senin', 'mulai' => '08:30:00', 'selesai' => '12:30:00', 'kuota' => 20],
+                ['email' => 'dokter.bambang@gmail.com', 'hari' => 'Rabu', 'mulai' => '08:30:00', 'selesai' => '12:30:00', 'kuota' => 20],
+                ['email' => 'dokter.bambang@gmail.com', 'hari' => 'Jumat', 'mulai' => '08:30:00', 'selesai' => '11:30:00', 'kuota' => 15],
+                // Dokter Nurul (Poli Anak)
+                ['email' => 'dokter.nurul@gmail.com', 'hari' => 'Selasa', 'mulai' => '10:00:00', 'selesai' => '14:00:00', 'kuota' => 20],
+                ['email' => 'dokter.nurul@gmail.com', 'hari' => 'Kamis', 'mulai' => '10:00:00', 'selesai' => '14:00:00', 'kuota' => 20],
+                ['email' => 'dokter.nurul@gmail.com', 'hari' => 'Sabtu', 'mulai' => '08:30:00', 'selesai' => '12:00:00', 'kuota' => 15],
+
+                // Dokter Dewi (Poli Penyakit Dalam)
+                ['email' => 'dokter.dewi@gmail.com', 'hari' => 'Senin', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 18],
+                ['email' => 'dokter.dewi@gmail.com', 'hari' => 'Rabu', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 18],
+                ['email' => 'dokter.dewi@gmail.com', 'hari' => 'Kamis', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 18],
+                // Dokter Hendra (Poli Penyakit Dalam)
+                ['email' => 'dokter.hendra@gmail.com', 'hari' => 'Selasa', 'mulai' => '13:00:00', 'selesai' => '17:00:00', 'kuota' => 18],
+                ['email' => 'dokter.hendra@gmail.com', 'hari' => 'Jumat', 'mulai' => '13:30:00', 'selesai' => '17:00:00', 'kuota' => 15],
+                ['email' => 'dokter.hendra@gmail.com', 'hari' => 'Sabtu', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+
+                // Dokter Farhan (Poli Kandungan & Kebidanan)
+                ['email' => 'dokter.farhan@gmail.com', 'hari' => 'Senin', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+                ['email' => 'dokter.farhan@gmail.com', 'hari' => 'Rabu', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+                ['email' => 'dokter.farhan@gmail.com', 'hari' => 'Jumat', 'mulai' => '08:30:00', 'selesai' => '11:30:00', 'kuota' => 12],
+
+                // Dokter Maya (Poli Mata)
+                ['email' => 'dokter.maya@gmail.com', 'hari' => 'Selasa', 'mulai' => '08:30:00', 'selesai' => '12:30:00', 'kuota' => 15],
+                ['email' => 'dokter.maya@gmail.com', 'hari' => 'Kamis', 'mulai' => '08:30:00', 'selesai' => '12:30:00', 'kuota' => 15],
+
+                // Dokter Rizki (Poli Bedah)
+                ['email' => 'dokter.rizki@gmail.com', 'hari' => 'Senin', 'mulai' => '10:00:00', 'selesai' => '14:00:00', 'kuota' => 12],
+                ['email' => 'dokter.rizki@gmail.com', 'hari' => 'Kamis', 'mulai' => '10:00:00', 'selesai' => '14:00:00', 'kuota' => 12],
+
+                // Dokter Anita (Poli THT)
+                ['email' => 'dokter.anita@gmail.com', 'hari' => 'Rabu', 'mulai' => '09:00:00', 'selesai' => '13:00:00', 'kuota' => 15],
+                ['email' => 'dokter.anita@gmail.com', 'hari' => 'Sabtu', 'mulai' => '09:00:00', 'selesai' => '12:00:00', 'kuota' => 12],
             ];
 
             foreach ($jadwalData as $data) {
@@ -120,7 +228,7 @@ class MasterDataSeeder extends Seeder
                     continue;
                 }
 
-                JadwalDokter::firstOrCreate(
+                JadwalDokter::updateOrCreate(
                     [
                         'dokter_id' => $dokter->id,
                         'hari' => $data['hari'],

@@ -25,10 +25,10 @@ class AlurPengujianSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-            $admin = User::where('email', 'admin@oasishusada.test')
+            $admin = User::where('email', 'admin@gmail.com')
                 ->firstOrFail();
 
-            $kasir = User::where('email', 'kasir@oasishusada.test')
+            $kasir = User::where('email', 'kasir@gmail.com')
                 ->firstOrFail();
 
             $pasienBudi = Pasien::where('nomor_rm', 'RM-OAS-0001')
@@ -44,7 +44,7 @@ class AlurPengujianSeeder extends Seeder
                 ->firstOrFail();
 
             $dokter = Dokter::whereHas('user', function ($query) {
-                $query->where('email', 'dokter.andi@oasishusada.test');
+                $query->where('email', 'dokter.andi@gmail.com');
             })->firstOrFail();
 
             $jadwal = JadwalDokter::where('dokter_id', $dokter->id)

@@ -142,7 +142,7 @@
         <img src="{{ asset('images/logo.png') }}" alt="Logo Oasis Husada">
         <div class="instansi">
             <h1>RUMAH SAKIT OASIS HUSADA</h1>
-            <p>Jl. Kesehatan Husada No. 10, Jakarta &bull; Telp: (021) 8899-7711 &bull; Email: kontak@oasishusada.test</p>
+            <p>Jl. Kesehatan Husada No. 10, Jakarta &bull; Telp: (021) 8899-7711 &bull; Email: kontak.oasishusada@gmail.com</p>
             <p>Layanan Rawat Jalan, Poliklinik Spesialis, Farmasi & Laboratorium</p>
         </div>
     </div>
