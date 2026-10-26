@@ -9,9 +9,7 @@
 
         {{-- Judul --}}
         <div class="mb-8 text-center">
-            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-oasis-blue text-lg font-bold text-white">
-                OH
-            </div>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo PT Oasis Husada" class="mx-auto h-16 w-16 rounded-2xl object-contain bg-white p-1 border border-slate-200 shadow-sm">
 
             <h1 class="mt-5 text-2xl font-bold text-oasis-navy">
                 Selamat Datang Kembali

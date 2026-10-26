@@ -25,9 +25,7 @@
                class="flex items-center gap-3"
                aria-label="PT Oasis Husada, beranda">
 
-                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-oasis-blue text-sm font-bold text-white">
-                    OH
-                </span>
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Oasis Husada" class="h-11 w-11 rounded-xl object-contain bg-white p-0.5 border border-slate-200">
 
                 <span>
                     <span class="block text-base font-bold text-oasis-navy">
@@ -74,6 +72,11 @@
             <a href="{{ route('farmasi.obat.index') }}"
                class="text-slate-600 hover:text-oasis-blue">
                 Data Obat
+            </a>
+        @elseif (auth()->user()->role === 'kasir')
+            <a href="{{ route('tagihan.index') }}"
+               class="text-slate-600 hover:text-oasis-blue">
+                Daftar Tagihan
             </a>
         @elseif (auth()->user()->role === 'admin')
             <a href="{{ route('admin.pasien.index') }}"
