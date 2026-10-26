@@ -17,6 +17,7 @@ use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AntreanPoliController;
+use App\Http\Controllers\KepalaRumahSakitController;
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
 Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
@@ -84,6 +85,16 @@ Route::middleware(['auth', 'active', 'role:admin'])
 
         Route::post('pendaftaran/{pendaftaran}/batalkan', [\App\Http\Controllers\AdminPendaftaranController::class, 'batalkan'])
             ->name('pendaftaran.batalkan');
+    });
+
+// Fitur Khusus Kepala Rumah Sakit & Eksekutif (Pimpinan RS)
+Route::middleware(['auth', 'active', 'role:kepala_rs,admin'])
+    ->prefix('kepala-rs')
+    ->name('kepala-rs.')
+    ->group(function () {
+        Route::get('/dashboard', [KepalaRumahSakitController::class, 'dashboard'])->name('dashboard');
+        Route::get('/laporan', [KepalaRumahSakitController::class, 'laporan'])->name('laporan');
+        Route::get('/laporan/cetak', [KepalaRumahSakitController::class, 'cetakLaporan'])->name('laporan.cetak');
     });
 
 // Fitur obat untuk admin dan farmasi

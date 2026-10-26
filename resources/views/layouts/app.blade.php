@@ -13,6 +13,11 @@
     $role = $user?->role;
 
     $menus = match ($role) {
+        'kepala_rs' => [
+            ['label' => 'Dashboard Eksekutif', 'route' => 'kepala-rs.dashboard'],
+            ['label' => 'Laporan Kinerja & Pelayanan', 'route' => 'kepala-rs.laporan'],
+            ['label' => 'Display Antrean', 'route' => 'antrean.display'],
+        ],
         'dokter' => [
             ['label' => 'Dashboard', 'route' => 'dokter.dashboard'],
             ['label' => 'Pemeriksaan Pasien', 'route' => 'dokter.pemeriksaan.index'],
@@ -32,6 +37,7 @@
             ['label' => 'Data Pasien', 'route' => 'admin.pasien.index'],
             ['label' => 'Resep & Farmasi', 'route' => 'farmasi.index'],
             ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
+            ['label' => 'Laporan Eksekutif', 'route' => 'kepala-rs.laporan'],
             ['label' => 'Display Antrean', 'route' => 'antrean.display'],
         ],
         default => [],
@@ -76,7 +82,7 @@
                 {{ $user?->name ?? 'Pengguna' }}
             </p>
             <p class="mt-1 text-xs text-slate-500">
-                {{ ucfirst($role ?? 'pengguna') }}
+                {{ $role === 'kepala_rs' ? 'Kepala Rumah Sakit' : ucfirst(str_replace('_', ' ', $role ?? 'pengguna')) }}
             </p>
 
             <a href="{{ route('home') }}"

@@ -24,6 +24,11 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
             ],
             [
+                'name' => 'Direktur / Kepala RS',
+                'email' => 'kepala.rs@oasishusada.test',
+                'role' => 'kepala_rs',
+            ],
+            [
                 'name' => 'Staf Farmasi',
                 'email' => 'farmasi@oasishusada.test',
                 'role' => 'farmasi',

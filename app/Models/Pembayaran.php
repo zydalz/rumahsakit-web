@@ -21,6 +21,14 @@ class Pembayaran extends Model
         'referensi',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'tanggal_bayar' => 'datetime',
+            'jumlah_bayar' => 'decimal:2',
+        ];
+    }
+
     public function tagihan()
     {
         return $this->belongsTo(Tagihan::class, 'tagihan_id');
