@@ -108,6 +108,7 @@ class AlurPengujianSeeder extends Seeder
                         'poli_id' => $poli->id,
                         'jadwal_dokter_id' => $jadwal->id,
                         'tanggal_kunjungan' => $tanggal,
+                        'jam_estimasi' => '08:00 - 09:00',
                         'nomor_antrean' => $this->nomorAntreanBerikutnya(
                             $poli->id,
                             $tanggal
@@ -117,6 +118,7 @@ class AlurPengujianSeeder extends Seeder
                         'status_verifikasi' => 'terverifikasi',
                         'keluhan_awal' => 'Data kunjungan untuk pengujian alur.',
                         'status' => 'selesai',
+                        'catatan_admin' => 'Pendaftaran telah diverifikasi oleh admin.',
                         'created_by' => $admin->id,
                     ]
                 );
@@ -136,13 +138,14 @@ class AlurPengujianSeeder extends Seeder
                     ]
                 );
 
-                // Resep dan detail obat.
+                // Resep dan detail obat. Status diselaraskan dengan pelunasan tagihan kasir.
+                $statusResep = $item['status_tagihan'] === 'lunas' ? 'siap_diserahkan' : 'menunggu_pembayaran';
                 $resep = Resep::firstOrCreate(
                     ['kode_resep' => "UJI-RESEP-{$kode}"],
                     [
                         'pendaftaran_id' => $pendaftaran->id,
                         'catatan_dokter' => 'Resep simulasi untuk pengujian.',
-                        'status' => 'menunggu',
+                        'status' => $statusResep,
                     ]
                 );
 
@@ -243,6 +246,52 @@ class AlurPengujianSeeder extends Seeder
                         ? 'lunas'
                         : 'belum_lunas',
                 ]);
+            }
+
+            // Data simulasi pendaftaran baru untuk pengujian Verifikasi Admin dan antrean dokter
+            $skenarioPendaftaran = [
+                [
+                    'kode' => 'D',
+                    'pasien' => $pasienBudi,
+                    'status' => 'menunggu_konfirmasi',
+                    'status_verifikasi' => 'menunggu',
+                    'jam_estimasi' => '08:00 - 09:00',
+                    'catatan_admin' => null,
+                    'keluhan' => 'Demam dan sakit tenggorokan, butuh konsultasi.',
+                ],
+                [
+                    'kode' => 'E',
+                    'pasien' => $pasienSiti,
+                    'status' => 'dikonfirmasi',
+                    'status_verifikasi' => 'terverifikasi',
+                    'jam_estimasi' => '09:00 - 10:00',
+                    'catatan_admin' => 'Pendaftaran telah disetujui. Silakan hadir tepat waktu sesuai perkiraan jam.',
+                    'keluhan' => 'Kontrol rutin tekanan darah dan konsultasi pola makan.',
+                ],
+            ];
+
+            foreach ($skenarioPendaftaran as $itemDaftar) {
+                $kode = $itemDaftar['kode'];
+                $tanggalHariIni = Carbon::today()->toDateString();
+
+                Pendaftaran::firstOrCreate(
+                    ['kode_pendaftaran' => "UJI-ALUR-{$kode}"],
+                    [
+                        'pasien_id' => $itemDaftar['pasien']->id,
+                        'poli_id' => $poli->id,
+                        'jadwal_dokter_id' => $jadwal->id,
+                        'tanggal_kunjungan' => $tanggalHariIni,
+                        'jam_estimasi' => $itemDaftar['jam_estimasi'],
+                        'nomor_antrean' => $this->nomorAntreanBerikutnya($poli->id, $tanggalHariIni),
+                        'jenis_penjamin' => 'Umum',
+                        'nomor_peserta' => null,
+                        'status_verifikasi' => $itemDaftar['status_verifikasi'],
+                        'keluhan_awal' => $itemDaftar['keluhan'],
+                        'status' => $itemDaftar['status'],
+                        'catatan_admin' => $itemDaftar['catatan_admin'],
+                        'created_by' => $admin->id,
+                    ]
+                );
             }
         });
 

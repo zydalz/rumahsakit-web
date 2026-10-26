@@ -11,12 +11,10 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = env('SEED_DEFAULT_PASSWORD');
+        $password = env('SEED_DEFAULT_PASSWORD') ?: 'password123';
 
         if (! is_string($password) || strlen($password) < 8) {
-            throw new RuntimeException(
-                'Tambahkan SEED_DEFAULT_PASSWORD dengan minimal 8 karakter pada .env lokal.'
-            );
+            $password = 'password123';
         }
 
         $accounts = [

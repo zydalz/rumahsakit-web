@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             MasterDataSeeder::class,
             PasienSeeder::class,
+            AlurPengujianSeeder::class,
         ]);
     }
 }
