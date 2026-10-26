@@ -11,7 +11,10 @@ class TagihanController extends Controller
 {
     public function index()
     {
-        $tagihans = Tagihan::with('pendaftaran')
+        $tagihans = Tagihan::with([
+            'pendaftaran.pasien',
+            'pembayaran',
+        ])
             ->latest()
             ->get();
 

@@ -21,6 +21,10 @@
             ['label' => 'Dashboard', 'route' => 'farmasi.index'],
             ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
         ],
+        'kasir' => [
+            ['label' => 'Dashboard', 'route' => 'dashboard'],
+            ['label' => 'Daftar Tagihan', 'route' => 'tagihan.index'],
+        ],
         'admin' => [
             ['label' => 'Dashboard', 'route' => 'dashboard'],
             ['label' => 'Data Pasien', 'route' => 'admin.pasien.index'],
@@ -35,9 +39,7 @@
     {{-- Sidebar --}}
     <aside class="w-full shrink-0 border-b border-slate-200 bg-white md:min-h-screen md:w-64 md:border-b-0 md:border-r">
         <div class="flex items-center gap-3 border-b border-slate-100 px-6 py-5">
-            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-700 font-bold text-white">
-                OH
-            </span>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo Oasis Husada" class="h-11 w-11 rounded-xl object-contain bg-white p-0.5 border border-slate-200">
 
             <div>
                 <p class="font-bold text-slate-800">Oasis Husada</p>
