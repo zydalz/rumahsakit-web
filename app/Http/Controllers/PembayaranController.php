@@ -5,53 +5,128 @@ namespace App\Http\Controllers;
 use App\Models\Tagihan;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class PembayaranController extends Controller
 {
     public function store(Request $request, Tagihan $tagihan)
     {
-        $request->validate([
-            'jumlah_bayar' => ['required', 'numeric', 'min:0.01'],
-            'metode' => ['required', 'string', 'max:20'],
-            'referensi' => ['nullable', 'string', 'max:100'],
+        $validated = $request->validate([
+            'jumlah_bayar' => [
+                'required',
+                'numeric',
+                'min:0.01',
+                'max:9999999999.99',
+            ],
+            'metode' => [
+                'required',
+                'in:tunai,transfer,qris',
+            ],
+            'referensi' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
         ]);
 
-        if ($tagihan->status === 'lunas') {
-            return back()->with('error', 'Tagihan ini sudah lunas.');
+        if (!Auth::check()) {
+            abort(401);
         }
 
-        // Muat relasi pembayaran jika belum dimuat
-        $tagihan->load('pembayaran');
+        DB::transaction(function () use ($tagihan, $validated) {
+            $tagihan = Tagihan::query()
+                ->lockForUpdate()
+                ->findOrFail($tagihan->id);
 
-        DB::beginTransaction();
-        try {
-           // Catat pembayaran baru
-            Pembayaran::create([
-                'tagihan_id' => $tagihan->getKey(),
-                'kasir_id' => \Illuminate\Support\Facades\Auth::id() ?? 1,
-                'tanggal_bayar' => Carbon::now(),
-                'metode' => $request->metode,
-                'jumlah_bayar' => $request->jumlah_bayar,
-                'status' => 'berhasil',
-                'referensi' => $request->referensi,
-            ]);
-
-            // Hitung total akumulasi pembayaran berhasil
-            $totalBayarBerhasil = $tagihan->pembayaran()->where('status', 'berhasil')->sum('jumlah_bayar') + $request->jumlah_bayar;
-
-            // Perbarui status tagihan jika lunas
-            if ($totalBayarBerhasil >= $tagihan->total_tagihan) {
-                $tagihan->update(['status' => 'lunas']);
+            if ($tagihan->status === 'lunas') {
+                throw ValidationException::withMessages([
+                    'jumlah_bayar' => 'Tagihan ini sudah lunas.',
+                ]);
             }
 
-            DB::commit();
-            return back()->with('success', 'Pembayaran berhasil dicatat.');
+            if ($tagihan->status === 'dibatalkan') {
+                throw ValidationException::withMessages([
+                    'jumlah_bayar' => 'Tagihan yang dibatalkan tidak dapat dibayar.',
+                ]);
+            }
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
-        }
+            $totalBayar = (float) $tagihan->pembayaran()
+                ->where('status', 'berhasil')
+                ->sum('jumlah_bayar');
+
+            $sisaTagihan = max(
+                0,
+                (float) $tagihan->total_tagihan - $totalBayar
+            );
+
+            $jumlahBayar = (float) $validated['jumlah_bayar'];
+
+            if ($jumlahBayar > $sisaTagihan) {
+                throw ValidationException::withMessages([
+                    'jumlah_bayar' => 'Pembayaran melebihi sisa tagihan Rp'
+                        . number_format($sisaTagihan, 0, ',', '.')
+                        . '.',
+                ]);
+            }
+
+            Pembayaran::create([
+                'tagihan_id' => $tagihan->id,
+                'kasir_id' => Auth::id(),
+                'tanggal_bayar' => now(),
+                'metode' => $validated['metode'],
+                'jumlah_bayar' => $validated['jumlah_bayar'],
+                'status' => 'berhasil',
+                'referensi' => $validated['referensi'] ?? null,
+            ]);
+
+            $totalBayar += $jumlahBayar;
+
+            $tagihan->update([
+                'status' => $totalBayar >= (float) $tagihan->total_tagihan
+                    ? 'lunas'
+                    : 'belum_lunas',
+            ]);
+        });
+
+        return redirect()
+            ->route('tagihan.show', $tagihan->id)
+            ->with('success', 'Pembayaran berhasil dicatat.');
     }
+    
+public function nota(Tagihan $tagihan, Pembayaran $pembayaran)
+{
+    // Pastikan pembayaran memang milik tagihan yang dipilih.
+    abort_unless(
+        (int) $pembayaran->tagihan_id === (int) $tagihan->id,
+        404
+    );
+
+    // Nota hanya tersedia untuk transaksi yang berhasil.
+    abort_unless($pembayaran->status === 'berhasil', 404);
+
+    $tagihan->load([
+        'pendaftaran.pasien',
+        'detailTagihan',
+        'pembayaran',
+    ]);
+
+    $totalDibayar = (float) $tagihan->pembayaran
+        ->where('status', 'berhasil')
+        ->sum('jumlah_bayar');
+
+    $sisaTagihan = max(
+        0,
+        (float) $tagihan->total_tagihan - $totalDibayar
+    );
+
+    return view('tagihan.nota', compact(
+        'tagihan',
+        'pembayaran',
+        'totalDibayar',
+        'sisaTagihan'
+    ));
+}
+
 }

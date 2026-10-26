@@ -9,24 +9,12 @@ use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\FarmasiController;
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('tagihan', TagihanController::class);
-
-    Route::post(
-        '/tagihan/{tagihan}/pembayaran',
-        [PembayaranController::class, 'store']
-    )->name('tagihan.pembayaran.store');
-});
-
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalDokterController;
 
-// Perhatikan namespace tambahan \Dokter di bawah ini:
 use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
-
-// ... (kode route lainnya biarkan seperti biasa)
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
 Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
@@ -146,3 +134,19 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/farmasi', [FarmasiController::class, 'index'])->name('farmasi.index');
     Route::put('/farmasi/{id}/status', [FarmasiController::class, 'updateStatus'])->name('farmasi.updateStatus');
 });
+
+// Fitur Tagihan
+Route::middleware(['auth', 'active', 'role:kasir'])
+    ->group(function () {
+        Route::resource('tagihan', TagihanController::class);
+
+        Route::post(
+            '/tagihan/{tagihan}/pembayaran',
+            [PembayaranController::class, 'store']
+        )->name('tagihan.pembayaran.store');
+
+        Route::get(
+            '/tagihan/{tagihan}/pembayaran/{pembayaran}/nota',
+            [PembayaranController::class, 'nota']
+        )->name('tagihan.pembayaran.nota');
+    });
