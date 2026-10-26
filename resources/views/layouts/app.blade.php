@@ -16,6 +16,7 @@
         'dokter' => [
             ['label' => 'Dashboard', 'route' => 'dokter.dashboard'],
             ['label' => 'Pemeriksaan Pasien', 'route' => 'dokter.pemeriksaan.index'],
+            ['label' => 'Display Antrean', 'route' => 'antrean.display'],
         ],
         'farmasi' => [
             ['label' => 'Dashboard', 'route' => 'farmasi.index'],
@@ -31,6 +32,7 @@
             ['label' => 'Data Pasien', 'route' => 'admin.pasien.index'],
             ['label' => 'Resep & Farmasi', 'route' => 'farmasi.index'],
             ['label' => 'Data Obat', 'route' => 'farmasi.obat.index'],
+            ['label' => 'Display Antrean', 'route' => 'antrean.display'],
         ],
         default => [],
     };

@@ -26,6 +26,7 @@ class PemeriksaanController extends Controller
     public function index()
     {
         $dokter = $this->dokterLogin();
+        $today = \Illuminate\Support\Carbon::today();
 
         $pendaftarans = Pendaftaran::with([
             'pasien.user',
@@ -37,9 +38,26 @@ class PemeriksaanController extends Controller
             ->orderBy('nomor_antrean')
             ->get();
 
+        // Antrean yang sedang dipanggil atau sedang diperiksa saat ini
+        $antreanSaatIni = Pendaftaran::with(['pasien.user', 'poli'])
+            ->where('poli_id', $dokter->poli_id)
+            ->whereDate('tanggal_kunjungan', $today)
+            ->whereIn('status', ['dipanggil', 'sedang_diperiksa'])
+            ->orderBy('nomor_antrean')
+            ->first();
+
+        $statsAntrean = [
+            'total_hari_ini' => $pendaftarans->where('tanggal_kunjungan', $today)->count(),
+            'menunggu' => $pendaftarans->where('tanggal_kunjungan', $today)->whereIn('status', ['dikonfirmasi', 'terverifikasi', 'menunggu'])->count(),
+            'dilewati' => $pendaftarans->where('tanggal_kunjungan', $today)->where('status', 'dilewati')->count(),
+            'selesai' => $pendaftarans->where('tanggal_kunjungan', $today)->where('status', 'selesai')->count(),
+        ];
+
         return view('dokter.pemeriksaan.index', compact(
             'pendaftarans',
-            'dokter'
+            'dokter',
+            'antreanSaatIni',
+            'statsAntrean'
         ));
     }
 
@@ -64,10 +82,21 @@ class PemeriksaanController extends Controller
             ->orderBy('nama_obat')
             ->get();
 
+        // Riwayat pemeriksaan sebelumnya untuk membantu dokter melihat riwayat alergi / diagnosis
+        $riwayatPemeriksaan = Pemeriksaan::with(['dokter.user', 'resep.detailReseps.obat'])
+            ->whereHas('pendaftaran', function ($q) use ($pendaftaran) {
+                $q->where('pasien_id', $pendaftaran->pasien_id)
+                    ->where('id', '!=', $pendaftaran->id);
+            })
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('dokter.pemeriksaan.create', compact(
             'pendaftaran',
             'dokter',
-            'obats'
+            'obats',
+            'riwayatPemeriksaan'
         ));
     }
 

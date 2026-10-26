@@ -16,6 +16,7 @@ use App\Http\Controllers\JadwalDokterController;
 use App\Http\Controllers\PemeriksaanController;
 use App\Http\Controllers\DashboardDokterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AntreanPoliController;
 
 // Route untuk Dokter (Pelayanan & Pemeriksaan Pasien)
 Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
@@ -26,7 +27,17 @@ Route::middleware(['auth', 'active', 'role:dokter'])->prefix('dokter')->name('do
     Route::get('/pemeriksaan/create/{pendaftaran_id}', [PemeriksaanController::class, 'create'])->name('pemeriksaan.create');
     Route::post('/pemeriksaan', [PemeriksaanController::class, 'store'])->name('pemeriksaan.store');
     Route::get('/pemeriksaan/{id}', [PemeriksaanController::class, 'show'])->name('pemeriksaan.show');
+
+    // Route Manajemen Antrean Poli
+    Route::post('/antrean/{pendaftaran}/panggil', [AntreanPoliController::class, 'panggil'])->name('antrean.panggil');
+    Route::post('/antrean/panggil-selanjutnya', [AntreanPoliController::class, 'panggilSelanjutnya'])->name('antrean.panggilSelanjutnya');
+    Route::post('/antrean/{pendaftaran}/lewati', [AntreanPoliController::class, 'lewati'])->name('antrean.lewati');
+    Route::post('/antrean/{pendaftaran}/mulai', [AntreanPoliController::class, 'mulaiPeriksa'])->name('antrean.mulaiPeriksa');
+    Route::post('/antrean/{pendaftaran}/batalkan', [AntreanPoliController::class, 'batalkan'])->name('antrean.batalkan');
 });
+
+// Layar Monitor Display Antrean Ruang Tunggu Poli (Dapat dibuka pada layar TV / monitor ruang tunggu)
+Route::get('/antrean/display', [AntreanPoliController::class, 'display'])->name('antrean.display');
 
 // Halaman utama
 Route::view('/', 'home')->name('home');
